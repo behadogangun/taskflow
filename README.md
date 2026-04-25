@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TaskFlow — Kanban Proje Yönetim Tahtası
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)
 
-First, run the development server:
+> Trello benzeri, gerçek zamanlı Kanban proje yönetim uygulaması.
+
+🔗 **[Canlı Demo](https://taskflow-juwomv52h-behadoganguns-projects.vercel.app)**
+
+---
+
+## ✨ Özellikler
+
+- 🔐 Kullanıcı kaydı ve girişi (email doğrulama)
+- 📋 Board oluşturma, renk seçimi, düzenleme, silme
+- 🗂️ Sütun ekleme, başlık düzenleme
+- 🃏 Kart ekleme, düzenleme, silme
+- 🖱️ Sürükle-bırak (aynı sütun içi + sütunlar arası)
+- 💾 Sıralama sayfa yenilemesinde korunuyor
+- 🚩 Öncelik/Flag sistemi (Düşük 🟢 / Orta 🟡 / Yüksek 🔴)
+- 📅 Son teslim tarihi
+- 👤 Atanan kişi (Assignee)
+- ✅ Alt görevler (Checklist + ilerleme çubuğu)
+- 💬 Yorumlar
+- ☑️ Kart tamamlama (kimin tamamladığı gösterilir)
+- 🔍 Kart arama ve önceliğe göre filtreleme
+- 📅 Tarihe göre sıralama
+- 🔑 Davet kodu ile workspace paylaşımı
+- 👥 Tam collaboration desteği (düzenleme + yorum)
+- 🌙 Dark / Light mode
+- 🎨 Board rengi seçimi
+- ⌨️ Klavye kısayolları
+- 🔔 Toast bildirimleri
+- ⚡ Skeleton loading
+- 📱 Responsive tasarım
+
+---
+
+## 🛠️ Teknoloji Stack
+
+| Teknoloji | Neden Seçildi |
+|---|---|
+| **Next.js 15** | App Router, server/client ayrımı, Vercel uyumu |
+| **TypeScript** | Tip güvenliği, daha az hata |
+| **Supabase** | PostgreSQL + Auth + RLS |
+| **dnd-kit** | Aktif geliştirme, touch desteği, TypeScript uyumlu |
+| **Tailwind CSS** | Hızlı geliştirme, dark mode desteği |
+
+---
+
+## 💡 Teknik Kararlar
+
+### Sıralama Algoritması
+Her kart `position: float` alanı tutar. İki kart arasına eklerken:
+newPosition = (prevCard.position + nextCard.position) / 2
+Tüm listeyi yeniden sıralamak gerekmez, sadece tek kart güncellenir.
+
+### Drag & Drop
+`dnd-kit` tercih edildi çünkü `react-beautiful-dnd` artık bakım almıyor. `PointerSensor` + `TouchSensor` ile hem mouse hem dokunmatik ekran desteği sağlandı.
+
+### Güvenlik
+Row Level Security (RLS) ile her kullanıcı sadece kendi verilerine erişebilir. Middleware ile korunan rotalar server-side kontrol edilir.
+
+---
+
+## 🚀 Kurulum
+
+```bash
+git clone https://github.com/behadogangun/taskflow.git
+cd taskflow
+npm install
+```
+
+`.env.local` dosyası oluştur:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Güvenlik
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Row Level Security (RLS) tüm tablolarda aktif
+- Middleware ile korunan rotalar
+- Email doğrulama zorunlu
+- Davet kodu olmadan workspace erişimi yok
