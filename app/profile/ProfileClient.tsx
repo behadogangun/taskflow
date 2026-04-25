@@ -7,6 +7,7 @@ import { useToast } from '@/components/providers/ToastProvider'
 import { User } from '@supabase/supabase-js'
 import Logo from '@/components/ui/Logo'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 type Props = {
   user: User
@@ -22,6 +23,7 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
   const [joinCode, setJoinCode] = useState('')
   const [joining, setJoining] = useState(false)
   const [collaborators, setCollaborators] = useState<{ id: string; email: string; name: string }[]>([])
+  const [removingCollaborator, setRemovingCollaborator] = useState<string | null>(null)
   const [joinedWorkspaces, setJoinedWorkspaces] = useState<{ id: string; owner_id: string; name: string }[]>([])
   const router = useRouter()
   const supabase = createClient()
@@ -31,7 +33,6 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
     const fetchData = async () => {
       const client = createClient()
 
-      // Davet kodunu çek
       const { data: invitation } = await client
         .from('invitations')
         .select('code')
@@ -40,7 +41,6 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
 
       if (invitation) setInviteCode(invitation.code)
 
-      // Benim workspace'ime katılanları çek
       const { data: collabs } = await client
         .from('collaborators')
         .select('collaborator_id')
@@ -62,12 +62,10 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
         }
       }
 
-      // Katıldığım workspace'leri çek
       const { data: joined } = await client
         .from('collaborators')
         .select('owner_id')
         .eq('collaborator_id', user.id)
-        
 
       if (joined && joined.length > 0) {
         const ownerIds = joined.map(j => j.owner_id)
@@ -75,7 +73,7 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
           .from('profiles')
           .select('id, full_name, email')
           .in('id', ownerIds)
-        
+
         if (owners) {
           setJoinedWorkspaces(owners.map(o => ({
             id: o.id,
@@ -243,16 +241,16 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
             {avatar}
           </div>
           <div>
-  <p className="text-lg font-semibold text-[var(--text-primary)]">
-    {user.user_metadata?.full_name || user.email}
-  </p>
-  <p className="text-sm text-[var(--text-muted)] mt-0.5 break-all">{user.email}</p>
-  <p className="text-xs text-[var(--text-muted)] mt-0.5">
-    Üye olma: {new Date(user.created_at).toLocaleDateString('tr-TR', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    })}
-  </p>
-</div>
+            <p className="text-lg font-semibold text-[var(--text-primary)]">
+              {user.user_metadata?.full_name || user.email}
+            </p>
+            <p className="text-sm text-[var(--text-muted)] mt-0.5 break-all">{user.email}</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+              Üye olma: {new Date(user.created_at).toLocaleDateString('tr-TR', {
+                day: 'numeric', month: 'long', year: 'numeric'
+              })}
+            </p>
+          </div>
         </div>
 
         {/* İstatistikler */}
@@ -326,10 +324,10 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleRemoveCollaborator(collab.id)}
+                    onClick={() => setRemovingCollaborator(collab.id)}
                     className="text-[var(--text-muted)] hover:text-red-500 transition-colors text-xs opacity-0 group-hover:opacity-100"
                   >
-                    Kaldır
+                    ✕
                   </button>
                 </div>
               ))}
@@ -448,6 +446,19 @@ export default function ProfileClient({ user, boardCount, cardCount }: Props) {
           </button>
         </div>
       </main>
+
+      {/* Confirm Dialog */}
+      {removingCollaborator && (
+        <ConfirmDialog
+          title="Collaborator'ı Kaldır"
+          description="Bu kişiyi workspace'inden kaldırmak istediğinize emin misiniz?"
+          onConfirm={() => {
+            handleRemoveCollaborator(removingCollaborator)
+            setRemovingCollaborator(null)
+          }}
+          onCancel={() => setRemovingCollaborator(null)}
+        />
+      )}
     </div>
   )
 }

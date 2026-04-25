@@ -54,19 +54,19 @@ export default async function LandingPage() {
         </p>
 
         {/* CTA Butonları */}
-        <div className="flex items-center gap-4 flex-wrap justify-center">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto px-4 sm:px-0">
           <Link
-            href="/register"
-            className="bg-[var(--accent)] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-lg shadow-[var(--accent)]/20"
-          >
-            Hemen Başla →
-          </Link>
-          <Link
-            href="/login"
-            className="bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] px-8 py-3 rounded-xl text-sm font-semibold hover:shadow-md transition-all"
-          >
-            Giriş Yap
-          </Link>
+  href="/register"
+  className="w-full sm:w-auto bg-[var(--accent)] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-lg shadow-[var(--accent)]/20 text-center"
+>
+  Hemen Başla →
+</Link>
+<Link
+  href="/login"
+  className="w-full sm:w-auto bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] px-8 py-3 rounded-xl text-sm font-semibold hover:shadow-md transition-all text-center"
+>
+  Giriş Yap
+</Link>
         </div>
 
         {/* Özellikler */}
