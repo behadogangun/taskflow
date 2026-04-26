@@ -22,7 +22,7 @@
 
 TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyle inşa edilmiş bir Kanban proje yönetim uygulamasıdır. Bireysel kullanım ve ekip işbirliği için tasarlanmıştır.
 
-> **Not:** Bu proje bir staj başvurusu kapsamında, GenAI yeteneklerini ölçmeye yönelik olarak geliştirilmiştir.
+
 
 ---
 
@@ -83,25 +83,21 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 
 ## 🏗️ Proje Mimarisi
 
-taskflow/
-├── 📁 app/
-│   ├── 📁 board/[id]/       # Kanban tahtası
-│   ├── 📁 dashboard/        # Board listesi
-│   ├── 📁 profile/          # Profil & collaboration
-│   ├── 📁 login/            # Giriş
-│   └── 📁 register/         # Kayıt
-├── 📁 components/
-│   ├── 📁 board/            # CardModal, Checklist, Comments
-│   ├── 📁 providers/        # ThemeProvider, ToastProvider
-│   └── 📁 ui/               # Logo, UserMenu, ConfirmDialog
-├── 📁 hooks/
-│   ├── 📄 useBoard.ts       # Kanban CRUD + drag & drop
-│   └── 📄 useBoards.ts      # Dashboard yönetimi
-├── 📁 lib/
-│   ├── 📁 supabase/         # Client & Server instance
-│   └── 📄 utils.ts          # Yardımcı fonksiyonlar
-└── 📁 types/
-└── 📄 index.ts          # TypeScript tipleri
+| Klasör | İçerik |
+|--------|--------|
+| `app/board/[id]/` | Kanban tahtası — BoardClient, Column, CardItem |
+| `app/dashboard/` | Board listesi |
+| `app/profile/` | Profil & collaboration |
+| `app/login/` | Giriş sayfası |
+| `app/register/` | Kayıt sayfası |
+| `components/board/` | CardModal, Checklist, Comments |
+| `components/providers/` | ThemeProvider, ToastProvider |
+| `components/ui/` | Logo, UserMenu, ConfirmDialog, PriorityBadge |
+| `hooks/useBoard.ts` | Kanban CRUD + drag & drop logic |
+| `hooks/useBoards.ts` | Dashboard board yönetimi |
+| `lib/supabase/` | Client & Server instance |
+| `lib/utils.ts` | Yardımcı fonksiyonlar |
+| `types/index.ts` | TypeScript tipleri |
 
 ---
 
@@ -124,22 +120,10 @@ Bu yaklaşımla tüm listeyi yeniden numaralandırmak gerekmez. Sadece taşınan
 
 ### 🔐 Güvenlik Mimarisi
 
-┌─────────────────────────────────────┐
-│           Client (Browser)          │
-│   React Components + Custom Hooks   │
-└──────────────┬──────────────────────┘
-│ HTTPS
-┌──────────────▼──────────────────────┐
-│         Next.js Middleware           │
-│     (Route Protection + Auth)        │
-└──────────────┬──────────────────────┘
-│
-┌──────────────▼──────────────────────┐
-│            Supabase                  │
-│   PostgreSQL + RLS Policies + Auth   │
-│   Her kullanıcı sadece kendi         │
-│   verilerine erişebilir              │
-└─────────────────────────────────────┘
+- **Client (Browser):** React Components + Custom Hooks
+- **Next.js Middleware:** Route koruma ve kimlik doğrulama
+- **Supabase:** PostgreSQL + Row Level Security + Auth
+- Her kullanıcı yalnızca kendi verilerine erişebilir
 
 ---
 
