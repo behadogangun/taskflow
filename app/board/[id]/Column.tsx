@@ -97,12 +97,13 @@ export default function ColumnComponent({
               />
             ) : (
               <button
-                onClick={() => setEditingTitle(true)}
-                className="font-semibold text-[var(--text-primary)] text-sm hover:text-[var(--accent)] transition-colors text-left flex-1"
-                title="Başlığı düzenlemek için tıkla"
-              >
-                {column.title}
-              </button>
+  onClick={() => setEditingTitle(true)}
+  className="font-semibold text-[var(--text-primary)] text-sm hover:text-[var(--accent)] transition-colors text-left flex-1 flex items-center gap-1 group/title"
+  title="Başlığı düzenlemek için tıkla"
+>
+  {column.title}
+  <span className="opacity-0 group-hover/title:opacity-100 transition-opacity text-xs">✏️</span>
+</button>
             )}
             <div className="flex items-center gap-2 ml-2 shrink-0">
               

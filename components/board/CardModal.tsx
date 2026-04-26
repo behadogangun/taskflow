@@ -16,12 +16,12 @@ type Props = {
 const priorities: Priority[] = ['low', 'medium', 'high']
 
 const LABELS = [
-  { id: 'bug', text: 'Bug', color: 'bg-red-500' },
-  { id: 'feature', text: 'Feature', color: 'bg-blue-500' },
-  { id: 'design', text: 'Design', color: 'bg-purple-500' },
-  { id: 'backend', text: 'Backend', color: 'bg-yellow-500' },
-  { id: 'frontend', text: 'Frontend', color: 'bg-green-500' },
-  { id: 'urgent', text: 'Urgent', color: 'bg-orange-500' },
+  { id: 'bug', text: 'Bug', color: 'bg-red-400' },
+  { id: 'feature', text: 'Feature', color: 'bg-blue-400' },
+  { id: 'design', text: 'Design', color: 'bg-violet-400' },
+  { id: 'backend', text: 'Backend', color: 'bg-amber-400' },
+  { id: 'frontend', text: 'Frontend', color: 'bg-emerald-400' },
+  { id: 'urgent', text: 'Urgent', color: 'bg-orange-400' },
 ]
 
 export default function CardModal({ card, onClose, onSave, columnId }: Props) {

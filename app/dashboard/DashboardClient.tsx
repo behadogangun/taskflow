@@ -224,9 +224,9 @@ function BoardCard({ board, onOpen, onDelete, isOwner }: BoardCardProps) {
     <>
       <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden hover:shadow-md transition-shadow group flex flex-col min-h-[140px]">
         <div
-          className="h-2 w-full"
-          style={{ backgroundColor: board.color || '#0052CC' }}
-        />
+  className="h-2 group-hover:h-3 w-full transition-all duration-200"
+  style={{ backgroundColor: board.color || '#0052CC' }}
+/>
         <div className="p-5 flex flex-col flex-1 justify-between">
           <div className="flex items-start justify-between">
             <button onClick={onOpen} className="flex-1 text-left">

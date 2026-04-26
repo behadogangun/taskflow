@@ -8,6 +8,7 @@ import CardModal from '@/components/board/CardModal'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { createClient } from '@/lib/supabase/client'
+
 const LABELS = [
   { id: 'bug', text: 'Bug', color: 'bg-red-500' },
   { id: 'feature', text: 'Feature', color: 'bg-blue-500' },
@@ -129,7 +130,18 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
             {card.title}
           </p>
         </div>
-
+              <div className="flex items-center justify-between mt-1">
+  <PriorityBadge priority={card.priority} size="sm" />
+  {card.due_date && (
+    <span className={`text-xs ${
+      new Date(card.due_date) < new Date() && !card.completed
+        ? 'text-red-500 font-medium'
+        : 'text-[var(--text-muted)]'
+    }`}>
+      📅 {new Date(card.due_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+    </span>
+  )}
+</div>
         {/* Tamamlayan kişi */}
         {card.completed && card.completed_by && (
           <div className="mt-1.5 ml-6 flex items-center gap-1">
