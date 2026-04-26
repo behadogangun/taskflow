@@ -138,14 +138,29 @@ export default function DashboardClient({ boards: initialBoards, collabBoards, u
 
         {/* Kendi Board'larım */}
         {filteredBoards.length === 0 && boards.length === 0 ? (
-          <div className="text-center py-16 text-[var(--text-muted)]">
-            <p className="text-lg font-medium">Henüz board yok</p>
-            <p className="text-sm mt-1">Yukarıdan yeni bir board oluştur</p>
-          </div>
-        ) : filteredBoards.length === 0 ? (
-          <div className="text-center py-8 text-[var(--text-muted)]">
-            <p className="text-sm">&quot;{search}&quot; ile eşleşen board yok</p>
-          </div>
+  <div className="text-center py-16 flex flex-col items-center gap-4">
+    <div className="text-6xl">🗂️</div>
+    <div>
+      <p className="text-lg font-semibold text-[var(--text-primary)]">Henüz hiç board yok!</p>
+      <p className="text-sm text-[var(--text-muted)] mt-1">İlk board&apos;unu oluşturmak için yukarıya bak</p>
+    </div>
+    
+  </div>
+        ) : filteredBoards.length === 0 && boards.length === 0 ? (
+  <div className="text-center py-16 flex flex-col items-center gap-4">
+    <div className="text-6xl animate-bounce">🗂️</div>
+    <div>
+      <p className="text-lg font-semibold text-[var(--text-primary)]">Henüz hiç board yok!</p>
+      <p className="text-sm text-[var(--text-muted)] mt-1">İlk board&apos;unu oluşturmak için yukarıya bak</p>
+    </div>
+    <div className="flex items-center gap-2 text-[var(--accent)]">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="-scale-x-100 -rotate-45">
+        <path d="M10 30 Q10 10 30 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" strokeDasharray="4 3"/>
+        <path d="M26 6 L30 10 L26 14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span className="text-sm font-medium">Buradan oluştur</span>
+    </div>
+  </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
             {filteredBoards.map((board) => (

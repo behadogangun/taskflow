@@ -317,6 +317,22 @@ export default function BoardClient({ board, initialColumns }: Props) {
                 </div>
               ) : (
                 <button onClick={() => setAddingColumn(true)} className="w-full bg-[var(--bg-surface)]/60 hover:bg-[var(--bg-surface)] rounded-xl p-3 text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm font-medium transition-all border-2 border-dashed border-[var(--border)] hover:border-[var(--text-muted)]">
+                  {/* Sütun yoksa empty state */}
+{columns.length === 0 && (
+  <div className="flex flex-col items-center justify-center py-24 gap-4 w-full">
+    <div className="text-6xl">📋</div>
+    <div className="text-center">
+      <p className="text-lg font-semibold text-[var(--text-primary)]">Board boş!</p>
+      <p className="text-sm text-[var(--text-muted)] mt-1">İlk sütununu ekleyerek başla</p>
+    </div>
+    <div className="flex items-center gap-2 text-[var(--accent)]">
+      <span className="text-sm font-medium">Buradan ekle</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </div>
+  </div>
+)}
                   + Sütun Ekle
                 </button>
               )}
