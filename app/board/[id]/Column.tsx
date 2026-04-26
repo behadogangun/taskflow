@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { ColumnWithCards, Priority } from '@/types'
 import { useDroppable } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import CardItem from './CardItem'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
@@ -34,6 +35,21 @@ export default function ColumnComponent({
 
   const { setNodeRef, isOver } = useDroppable({ id: column.id })
 
+  const {
+    attributes: colAttributes,
+    listeners: colListeners,
+    setNodeRef: setColNodeRef,
+    transform: colTransform,
+    transition: colTransition,
+    isDragging: isColDragging,
+  } = useSortable({ id: column.id })
+
+  const colStyle = {
+    transform: CSS.Transform.toString(colTransform),
+    transition: colTransition,
+    opacity: isColDragging ? 0.5 : 1,
+  }
+
   const handleAddCard = () => {
     if (!newCardTitle.trim()) return
     onAddCard(column.id, newCardTitle.trim())
@@ -55,7 +71,11 @@ export default function ColumnComponent({
 
   return (
     <>
-      <div className="w-72 shrink-0">
+      <div
+        ref={setColNodeRef}
+        style={colStyle}
+        className="w-72 shrink-0"
+      >
         <div className="bg-[var(--bg-surface)] rounded-xl p-3">
           {/* Column Header */}
           <div className="flex items-center justify-between mb-3">
@@ -78,13 +98,14 @@ export default function ColumnComponent({
             ) : (
               <button
                 onClick={() => setEditingTitle(true)}
-                className="font-semibold text-[var(--text-primary)] text-sm hover:text-[var(--accent)] transition-colors text-left"
+                className="font-semibold text-[var(--text-primary)] text-sm hover:text-[var(--accent)] transition-colors text-left flex-1"
                 title="Başlığı düzenlemek için tıkla"
               >
                 {column.title}
               </button>
             )}
             <div className="flex items-center gap-2 ml-2 shrink-0">
+              
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                 column.cards.length === 0
                   ? 'bg-[var(--border)] text-[var(--text-muted)]'
@@ -115,16 +136,26 @@ export default function ColumnComponent({
               items={column.cards.map(c => c.id)}
               strategy={verticalListSortingStrategy}
             >
-              {column.cards.map(card => (
-  <CardItem
-    key={card.id}
-    card={card}
-    columnId={column.id}
-    onDelete={onDeleteCard}
-    onUpdate={onUpdateCard}
-    onToggleComplete={onToggleComplete}
-  />
-))}
+              {column.cards.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-6 px-3 border-2 border-dashed border-[var(--border)] rounded-xl opacity-50">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--text-muted)] mb-2">
+                    <rect x="3" y="3" width="18" height="18" rx="3" />
+                    <path d="M12 8v8M8 12h8" />
+                  </svg>
+                  <p className="text-xs text-[var(--text-muted)] text-center">Kart eklemek için<br/>aşağıya tıkla</p>
+                </div>
+              ) : (
+                column.cards.map(card => (
+                  <CardItem
+                    key={card.id}
+                    card={card}
+                    columnId={column.id}
+                    onDelete={onDeleteCard}
+                    onUpdate={onUpdateCard}
+                    onToggleComplete={onToggleComplete}
+                  />
+                ))
+              )}
             </SortableContext>
           </div>
 

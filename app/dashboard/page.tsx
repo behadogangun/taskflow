@@ -8,25 +8,42 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Kendi board'ları
   const { data: ownBoards } = await supabase
     .from('boards')
-    .select('*')
+    .select('*, columns(cards(id))')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false })
 
-  // Collaborator olarak erişilen board'lar
   const { data: collabBoards } = await supabase
     .from('boards')
-    .select('*')
+    .select('*, columns(cards(id))')
     .neq('owner_id', user.id)
     .order('created_at', { ascending: false })
+
+  const today = new Date()
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  const { data: urgentCards } = await supabase
+    .from('cards')
+    .select('id, title, due_date, column_id')
+    .eq('completed', false)
+    .lte('due_date', tomorrow.toISOString().split('T')[0])
+    .gte('due_date', today.toISOString().split('T')[0])
+
+  const { data: overdueCards } = await supabase
+    .from('cards')
+    .select('id, title, due_date')
+    .eq('completed', false)
+    .lt('due_date', today.toISOString().split('T')[0])
 
   return (
     <DashboardClient
       boards={ownBoards || []}
       collabBoards={collabBoards || []}
       user={user}
+      urgentCardCount={(urgentCards || []).length}
+      overdueCardCount={(overdueCards || []).length}
     />
   )
 }

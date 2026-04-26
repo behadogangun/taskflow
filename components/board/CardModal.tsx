@@ -15,15 +15,7 @@ type Props = {
 
 const priorities: Priority[] = ['low', 'medium', 'high']
 
-export default function CardModal({ card, onClose, onSave, columnId }: Props) {
-  const [title, setTitle] = useState(card.title)
-  const [description, setDescription] = useState(card.description || '')
-  const [priority, setPriority] = useState<Priority>(card.priority)
-  const [dueDate, setDueDate] = useState(card.due_date || '')
-  const [assignee, setAssignee] = useState(card.assignee || '')
-  const [labels, setLabels] = useState<string[]>(card.labels || [])
-
-  const LABELS = [
+const LABELS = [
   { id: 'bug', text: 'Bug', color: 'bg-red-500' },
   { id: 'feature', text: 'Feature', color: 'bg-blue-500' },
   { id: 'design', text: 'Design', color: 'bg-purple-500' },
@@ -32,32 +24,53 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
   { id: 'urgent', text: 'Urgent', color: 'bg-orange-500' },
 ]
 
+export default function CardModal({ card, onClose, onSave, columnId }: Props) {
+  const [title, setTitle] = useState(card.title)
+  const [description, setDescription] = useState(card.description || '')
+  const [priority, setPriority] = useState<Priority>(card.priority)
+  const [dueDate, setDueDate] = useState(card.due_date || '')
+  const [assignee, setAssignee] = useState(card.assignee || '')
+  const [labels, setLabels] = useState<string[]>(card.labels || [])
+  const [closing, setClosing] = useState(false)
+
+  const handleClose = () => {
+    setClosing(true)
+    setTimeout(() => {
+      setClosing(false)
+      onClose()
+    }, 150)
+  }
+
   // ESC tuşuyla kapat
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') handleClose()
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
+  }, [])
 
   const handleSave = () => {
-  if (!title.trim()) return
-  onSave(card.id, columnId, title.trim(), description.trim(), priority, dueDate || null, assignee.trim() || null, labels)
-  onClose()
-}
+    if (!title.trim()) return
+    onSave(card.id, columnId, title.trim(), description.trim(), priority, dueDate || null, assignee.trim() || null, labels)
+    handleClose()
+  }
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      className={`fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 transition-opacity duration-150 ${
+        closing ? 'opacity-0' : 'opacity-100'
+      }`}
+      onClick={(e) => e.target === e.currentTarget && handleClose()}
     >
-      <div className="bg-[var(--bg-surface)] rounded-2xl shadow-2xl w-full max-w-lg border border-[var(--border)] max-h-[90vh] flex flex-col">
+      <div className={`bg-[var(--bg-surface)] rounded-2xl shadow-2xl w-full max-w-lg border border-[var(--border)] max-h-[90vh] flex flex-col transition-all duration-150 ${
+        closing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+      }`}>
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] shrink-0">
           <h2 className="text-base font-semibold text-[var(--text-primary)]">Kart Detayı</h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--border)]"
           >
             ✕
@@ -115,32 +128,34 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
               ))}
             </div>
           </div>
-                {/* Etiketler */}
-<div>
-  <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-    Etiketler
-  </label>
-  <div className="flex flex-wrap gap-2">
-    {LABELS.map(label => (
-      <button
-        key={label.id}
-        onClick={() => setLabels(prev =>
-          prev.includes(label.id)
-            ? prev.filter(l => l !== label.id)
-            : [...prev, label.id]
-        )}
-        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border-2 transition-all ${
-          labels.includes(label.id)
-            ? `${label.color} text-white border-transparent`
-            : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-muted)]'
-        }`}
-      >
-        {labels.includes(label.id) && <span>✓</span>}
-        {label.text}
-      </button>
-    ))}
-  </div>
-</div>
+
+          {/* Etiketler */}
+          <div>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
+              Etiketler
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {LABELS.map(label => (
+                <button
+                  key={label.id}
+                  onClick={() => setLabels(prev =>
+                    prev.includes(label.id)
+                      ? prev.filter(l => l !== label.id)
+                      : [...prev, label.id]
+                  )}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border-2 transition-all ${
+                    labels.includes(label.id)
+                      ? `${label.color} text-white border-transparent`
+                      : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-muted)]'
+                  }`}
+                >
+                  {labels.includes(label.id) && <span>✓</span>}
+                  {label.text}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Son Teslim Tarihi */}
           <div>
             <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
@@ -192,7 +207,7 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
         {/* Modal Footer */}
         <div className="px-6 py-4 border-t border-[var(--border)] flex gap-3 justify-end shrink-0">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--border)] transition-colors"
           >
             İptal

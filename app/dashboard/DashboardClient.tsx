@@ -19,9 +19,11 @@ type Props = {
   boards: Board[]
   collabBoards: Board[]
   user: User
+  urgentCardCount: number
+  overdueCardCount: number
 }
 
-export default function DashboardClient({ boards: initialBoards, collabBoards, user }: Props) {
+export default function DashboardClient({ boards: initialBoards, collabBoards, user, urgentCardCount, overdueCardCount }: Props) {
   const [newBoardTitle, setNewBoardTitle] = useState('')
   const [selectedColor, setSelectedColor] = useState('#0052CC')
   const [search, setSearch] = useState('')
@@ -56,7 +58,27 @@ export default function DashboardClient({ boards: initialBoards, collabBoards, u
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-8">Board&apos;larım</h2>
-
+          {/* Uyarı Bandı */}
+{(overdueCardCount > 0 || urgentCardCount > 0) && (
+  <div className="flex flex-col sm:flex-row gap-2 mb-6">
+    {overdueCardCount > 0 && (
+      <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-2.5 flex-1">
+        <span className="text-red-500 text-base">🚨</span>
+        <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+          <span className="font-bold">{overdueCardCount}</span> kart gecikmiş durumda
+        </p>
+      </div>
+    )}
+    {urgentCardCount > 0 && (
+      <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl px-4 py-2.5 flex-1">
+        <span className="text-yellow-500 text-base">⚠️</span>
+        <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">
+          <span className="font-bold">{urgentCardCount}</span> kart bugün veya yarın bitiyor
+        </p>
+      </div>
+    )}
+  </div>
+)}
         {/* Yeni Board Oluştur */}
         <div className="bg-[var(--bg-surface)] rounded-xl border border-[var(--border)] p-4 mb-4">
           <div className="flex gap-3 mb-3">
@@ -179,6 +201,10 @@ type BoardCardProps = {
 function BoardCard({ board, onOpen, onDelete, isOwner }: BoardCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
 
+  // Toplam kart sayısını hesapla
+  const cardCount = (board as Board & { columns?: { cards?: { id: string }[] }[] }).columns?.reduce(
+  (acc: number, col: { cards?: { id: string }[] }) => acc + (col.cards?.length || 0), 0
+) || 0
   return (
     <>
       <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden hover:shadow-md transition-shadow group flex flex-col min-h-[140px]">
@@ -204,11 +230,16 @@ function BoardCard({ board, onOpen, onDelete, isOwner }: BoardCardProps) {
               </button>
             )}
           </div>
-          {!isOwner && (
-            <span className="text-xs text-[var(--accent)] mt-2 font-medium">
-              👥 Paylaşılan
+          <div className="flex items-center justify-between mt-3">
+            <span className="text-xs text-[var(--text-muted)]">
+              🃏 {cardCount} kart
             </span>
-          )}
+            {!isOwner && (
+              <span className="text-xs text-[var(--accent)] font-medium">
+                👥 Paylaşılan
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

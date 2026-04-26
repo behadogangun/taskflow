@@ -43,8 +43,8 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 - ✅ Son teslim tarihi
 - ✅ Atanan kişi
 - ✅ Alt görevler + ilerleme çubuğu
-- ✅ Yorumlar
-- ✅ Kart tamamlama
+- ✅ Kart tamamlama (kimin tamamladığı gösterilir)
+- ✅ Renkli etiketler (Bug, Feature, Design, Backend, Frontend, Urgent)
 
 </td>
 <td width="50%">
@@ -53,7 +53,11 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 - ✅ Davet kodu ile workspace paylaşımı
 - ✅ Collaborator yönetimi
 - ✅ Tam düzenleme yetkisi
-
+- ✅ Aktivite geçmişi (gerçek zamanlı)
+### 📊 İstatistikler
+- ✅ Board istatistik çubuğu
+- ✅ Tamamlanan / Geciken / Devam Eden kart sayıları
+- ✅ Renk değişen progress bar
 ### 🎨 UI & Deneyim
 - ✅ Dark / Light mode
 - ✅ Board rengi seçimi
