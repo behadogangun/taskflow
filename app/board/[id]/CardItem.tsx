@@ -8,12 +8,19 @@ import CardModal from '@/components/board/CardModal'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { createClient } from '@/lib/supabase/client'
-
+const LABELS = [
+  { id: 'bug', text: 'Bug', color: 'bg-red-500' },
+  { id: 'feature', text: 'Feature', color: 'bg-blue-500' },
+  { id: 'design', text: 'Design', color: 'bg-purple-500' },
+  { id: 'backend', text: 'Backend', color: 'bg-yellow-500' },
+  { id: 'frontend', text: 'Frontend', color: 'bg-green-500' },
+  { id: 'urgent', text: 'Urgent', color: 'bg-orange-500' },
+]
 type Props = {
   card: Card
   columnId: string
   onDelete: (cardId: string, columnId: string) => void
-  onUpdate: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null) => void
+  onUpdate: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null, labels: string[]) => void
   onToggleComplete: (cardId: string, columnId: string, completed: boolean, completedBy: string) => void
 }
 
@@ -165,6 +172,24 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
           </div>
         )}
       </div>
+
+      {/* Etiketler */}
+{card.labels && card.labels.length > 0 && (
+  <div className="mt-2 flex flex-wrap gap-1 ml-6">
+    {card.labels.map(labelId => {
+      const label = LABELS.find(l => l.id === labelId)
+      if (!label) return null
+      return (
+        <span
+          key={labelId}
+          className={`${label.color} text-white text-xs px-2 py-0.5 rounded-full font-medium`}
+        >
+          {label.text}
+        </span>
+      )
+    })}
+  </div>
+)}
 
       {modalOpen && (
         <CardModal

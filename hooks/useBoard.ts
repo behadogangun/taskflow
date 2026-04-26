@@ -248,45 +248,47 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
   }
 
   const updateCard = async (
-    cardId: string,
-    columnId: string,
-    title: string,
-    description: string,
-    priority: Priority,
-    dueDate: string | null,
-    assignee: string | null
-  ): Promise<void> => {
-    const { error } = await supabase
-      .from('cards')
-      .update({
-        title: title.trim(),
-        description: description.trim(),
-        priority,
-        due_date: dueDate,
-        assignee,
-      })
-      .eq('id', cardId)
+  cardId: string,
+  columnId: string,
+  title: string,
+  description: string,
+  priority: Priority,
+  dueDate: string | null,
+  assignee: string | null,
+  labels: string[]
+): Promise<void> => {
+  const { error } = await supabase
+    .from('cards')
+    .update({
+      title: title.trim(),
+      description: description.trim(),
+      priority,
+      due_date: dueDate,
+      assignee,
+      labels,
+    })
+    .eq('id', cardId)
 
-    if (error) {
-      showToast('Kart güncellenirken bir hata oluştu.', 'error')
-      return
-    }
-
-    setColumns(prev => prev.map(col =>
-      col.id === columnId
-        ? {
-            ...col,
-            cards: col.cards.map(c =>
-              c.id === cardId
-                ? { ...c, title: title.trim(), description: description.trim(), priority, due_date: dueDate, assignee }
-                : c
-            ),
-          }
-        : col
-    ))
-    showToast('Kart güncellendi.', 'success')
-    await logActivity(cardId, 'updated', `"${title.trim()}" kartı güncellendi`)
+  if (error) {
+    showToast('Kart güncellenirken bir hata oluştu.', 'error')
+    return
   }
+
+  setColumns(prev => prev.map(col =>
+    col.id === columnId
+      ? {
+          ...col,
+          cards: col.cards.map(c =>
+            c.id === cardId
+              ? { ...c, title: title.trim(), description: description.trim(), priority, due_date: dueDate, assignee, labels }
+              : c
+          ),
+        }
+      : col
+  ))
+  showToast('Kart güncellendi.', 'success')
+  await logActivity(cardId, 'updated', `"${title.trim()}" kartı güncellendi`)
+}
 
   // ─── Kart Tamamlama ─────────────────────────────────────────────
 

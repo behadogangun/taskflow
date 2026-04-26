@@ -12,7 +12,7 @@ type Props = {
   onAddCard: (columnId: string, title: string) => void
   onDeleteColumn: (columnId: string) => void
   onDeleteCard: (cardId: string, columnId: string) => void
-  onUpdateCard: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null) => void
+  onUpdateCard: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null, labels: string[]) => void
   onUpdateColumnTitle: (columnId: string, title: string) => void
   onToggleComplete: (cardId: string, columnId: string, completed: boolean, completedBy: string) => void
 }

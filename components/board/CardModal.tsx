@@ -9,7 +9,7 @@ import Comments from '@/components/board/Comments'
 type Props = {
   card: Card
   onClose: () => void
-  onSave: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null) => void
+  onSave: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null, labels: string[]) => void
   columnId: string
 }
 
@@ -21,6 +21,16 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
   const [priority, setPriority] = useState<Priority>(card.priority)
   const [dueDate, setDueDate] = useState(card.due_date || '')
   const [assignee, setAssignee] = useState(card.assignee || '')
+  const [labels, setLabels] = useState<string[]>(card.labels || [])
+
+  const LABELS = [
+  { id: 'bug', text: 'Bug', color: 'bg-red-500' },
+  { id: 'feature', text: 'Feature', color: 'bg-blue-500' },
+  { id: 'design', text: 'Design', color: 'bg-purple-500' },
+  { id: 'backend', text: 'Backend', color: 'bg-yellow-500' },
+  { id: 'frontend', text: 'Frontend', color: 'bg-green-500' },
+  { id: 'urgent', text: 'Urgent', color: 'bg-orange-500' },
+]
 
   // ESC tuşuyla kapat
   useEffect(() => {
@@ -32,10 +42,10 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
   }, [onClose])
 
   const handleSave = () => {
-    if (!title.trim()) return
-    onSave(card.id, columnId, title.trim(), description.trim(), priority, dueDate || null, assignee.trim() || null)
-    onClose()
-  }
+  if (!title.trim()) return
+  onSave(card.id, columnId, title.trim(), description.trim(), priority, dueDate || null, assignee.trim() || null, labels)
+  onClose()
+}
 
   return (
     <div
@@ -105,7 +115,32 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
               ))}
             </div>
           </div>
-
+                {/* Etiketler */}
+<div>
+  <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
+    Etiketler
+  </label>
+  <div className="flex flex-wrap gap-2">
+    {LABELS.map(label => (
+      <button
+        key={label.id}
+        onClick={() => setLabels(prev =>
+          prev.includes(label.id)
+            ? prev.filter(l => l !== label.id)
+            : [...prev, label.id]
+        )}
+        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border-2 transition-all ${
+          labels.includes(label.id)
+            ? `${label.color} text-white border-transparent`
+            : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-muted)]'
+        }`}
+      >
+        {labels.includes(label.id) && <span>✓</span>}
+        {label.text}
+      </button>
+    ))}
+  </div>
+</div>
           {/* Son Teslim Tarihi */}
           <div>
             <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">

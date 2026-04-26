@@ -34,23 +34,23 @@ export default function BoardClient({ board, initialColumns }: Props) {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all')
   const [sortByDate, setSortByDate] = useState(false)
-  const router = useRouter()
   const [showActivity, setShowActivity] = useState(false)
+  const router = useRouter()
 
   const {
-  columns,
-  activeCard,
-  handleDragStart,
-  handleDragOver,
-  handleDragEnd,
-  addColumn,
-  deleteColumn,
-  updateColumnTitle,
-  addCard,
-  deleteCard,
-  updateCard,
-  toggleComplete,
-} = useBoard(initialColumns, board.id)
+    columns,
+    activeCard,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+    addColumn,
+    deleteColumn,
+    updateColumnTitle,
+    addCard,
+    deleteCard,
+    updateCard,
+    toggleComplete,
+  } = useBoard(initialColumns, board.id)
 
   // Klavye kısayolları
   useEffect(() => {
@@ -91,6 +91,21 @@ export default function BoardClient({ board, initialColumns }: Props) {
       })
   }))
 
+  // ─── Board İstatistikleri ────────────────────────────────────────
+  const allCards = columns.flatMap(c => c.cards)
+  const totalCards = allCards.length
+  const completedCards = allCards.filter(c => c.completed).length
+  const overdueCards = allCards.filter(c => {
+    if (!c.due_date || c.completed) return false
+    return new Date(c.due_date) < new Date()
+  }).length
+  const progressPercent = totalCards > 0 ? Math.round((completedCards / totalCards) * 100) : 0
+  const progressColor =
+    progressPercent === 100 ? 'bg-green-500' :
+    progressPercent >= 60 ? 'bg-blue-500' :
+    progressPercent >= 30 ? 'bg-yellow-500' :
+    'bg-red-500'
+
   const handleAddColumn = async () => {
     const success = await addColumn(newColumnTitle)
     if (success) {
@@ -116,15 +131,32 @@ export default function BoardClient({ board, initialColumns }: Props) {
       .update({ title: boardTitle.trim() })
       .eq('id', board.id)
 
-    if (error) {
-      setBoardTitle(board.title)
-    }
-
+    if (error) setBoardTitle(board.title)
     setEditingBoardTitle(false)
   }
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
+
+      {/* Aktivite Paneli */}
+      <div
+        className="fixed right-0 top-0 h-full w-72 bg-[var(--bg-surface)] border-l border-[var(--border)] z-40 transform transition-transform duration-300"
+        style={{ transform: showActivity ? 'translateX(0)' : 'translateX(100%)' }}
+      >
+        <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">📋 Aktivite Geçmişi</h2>
+          <button
+            onClick={() => setShowActivity(false)}
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="p-4 overflow-y-auto h-full pb-20">
+          <ActivityLog boardId={board.id} />
+        </div>
+      </div>
+
       {/* Header */}
       <header className="bg-[var(--bg-surface)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -135,16 +167,6 @@ export default function BoardClient({ board, initialColumns }: Props) {
           >
             ← Geri
           </button>
-          <button
-  onClick={() => setShowActivity(prev => !prev)}
-  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-    showActivity
-      ? 'bg-[var(--accent)] text-white border-[var(--accent)]'
-      : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
-  }`}
->
-  📋 Aktiviteler
-</button>
           <div className="w-px h-5 bg-[var(--border)]" />
           {editingBoardTitle ? (
             <input
@@ -173,28 +195,22 @@ export default function BoardClient({ board, initialColumns }: Props) {
           )}
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowActivity(prev => !prev)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              showActivity
+                ? 'bg-[var(--accent)] text-white border-[var(--accent)]'
+                : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+            }`}
+          >
+            📋 Aktiviteler
+          </button>
           <KeyboardShortcuts />
           <ThemeToggle />
           <Logo size="sm" />
         </div>
       </header>
-            {/* Aktivite Paneli */}
-<div className="fixed right-0 top-0 h-full w-72 bg-[var(--bg-surface)] border-l border-[var(--border)] z-40 transform transition-transform duration-300"
-  style={{ transform: showActivity ? 'translateX(0)' : 'translateX(100%)' }}
->
-  <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
-    <h2 className="text-sm font-semibold text-[var(--text-primary)]">📋 Aktivite Geçmişi</h2>
-    <button
-      onClick={() => setShowActivity(false)}
-      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-    >
-      ✕
-    </button>
-  </div>
-  <div className="p-4 overflow-y-auto h-full pb-20">
-    <ActivityLog boardId={board.id} />
-  </div>
-</div>
+
       {/* Arama & Filtre Toolbar */}
       <div className="px-6 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
@@ -241,8 +257,6 @@ export default function BoardClient({ board, initialColumns }: Props) {
           >
             📅 Tarihe Göre Sırala
           </button>
-
-          {/* Tooltip */}
           <div className="absolute top-full right-0 mt-2 w-56 bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl shadow-xl p-3 z-50 opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-200 pointer-events-none">
             <p className="text-xs font-semibold text-[var(--text-primary)] mb-1.5">📅 Tarihe Göre Sırala</p>
             <p className="text-xs text-[var(--text-muted)] leading-relaxed">
@@ -251,7 +265,6 @@ export default function BoardClient({ board, initialColumns }: Props) {
           </div>
         </div>
 
-        {/* Aktif filtre varsa temizle */}
         {(searchQuery || filterPriority !== 'all' || sortByDate) && (
           <button
             onClick={() => { setSearchQuery(''); setFilterPriority('all'); setSortByDate(false) }}
@@ -261,6 +274,49 @@ export default function BoardClient({ board, initialColumns }: Props) {
           </button>
         )}
       </div>
+
+      {/* Board İstatistikleri */}
+      {totalCards > 0 && (
+        <div className="px-6 py-3 bg-[var(--bg-primary)] border-b border-[var(--border)]">
+          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl px-5 py-3 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[var(--text-muted)]">Toplam</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">{totalCards}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-xs text-[var(--text-muted)]">Tamamlanan</span>
+              <span className="text-sm font-bold text-green-500">{completedCards}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-xs text-[var(--text-muted)]">Geciken</span>
+              <span className="text-sm font-bold text-red-500">{overdueCards}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+              <span className="text-xs text-[var(--text-muted)]">Devam Eden</span>
+              <span className="text-sm font-bold text-[var(--accent)]">{totalCards - completedCards}</span>
+            </div>
+            <div className="flex items-center gap-3 min-w-48 flex-1">
+              <div className="flex-1 h-3 bg-[var(--border)] rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className={`text-xs font-bold ${
+                progressPercent === 100 ? 'text-green-500' :
+                progressPercent >= 60 ? 'text-blue-500' :
+                progressPercent >= 30 ? 'text-yellow-500' :
+                'text-red-500'
+              }`}>
+                %{progressPercent}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Kanban Tahtası */}
       <div className="p-6">
@@ -278,15 +334,15 @@ export default function BoardClient({ board, initialColumns }: Props) {
             >
               {filteredColumns.map(column => (
                 <ColumnComponent
-  key={column.id}
-  column={column}
-  onAddCard={addCard}
-  onDeleteColumn={deleteColumn}
-  onDeleteCard={deleteCard}
-  onUpdateCard={updateCard}
-  onUpdateColumnTitle={updateColumnTitle}
-  onToggleComplete={toggleComplete}
-/>
+                  key={column.id}
+                  column={column}
+                  onAddCard={addCard}
+                  onDeleteColumn={deleteColumn}
+                  onDeleteCard={deleteCard}
+                  onUpdateCard={updateCard}
+                  onUpdateColumnTitle={updateColumnTitle}
+                  onToggleComplete={toggleComplete}
+                />
               ))}
             </SortableContext>
 
