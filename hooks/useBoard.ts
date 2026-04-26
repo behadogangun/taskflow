@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useToast } from '@/components/providers/ToastProvider'
 import { createClient } from '@/lib/supabase/client'
 import { Card, ColumnWithCards, Priority } from '@/types'
@@ -17,14 +17,39 @@ import { arrayMove } from '@dnd-kit/sortable'
 export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
   const [columns, setColumns] = useState<ColumnWithCards[]>(initialColumns)
   const [activeCard, setActiveCard] = useState<Card | null>(null)
+  const sourceColumnIdRef = useRef<string | null>(null)
   const supabase = createClient()
   const { showToast } = useToast()
+
+  // ─── Aktivite Kaydet ─────────────────────────────────────────────
+
+  const logActivity = async (
+    cardId: string,
+    action: string,
+    detail?: string
+  ) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    await supabase.from('activities').insert({
+      card_id: cardId,
+      board_id: boardId,
+      user_id: user.id,
+      action,
+      detail: detail || null,
+    })
+  }
 
   // ─── Drag & Drop ────────────────────────────────────────────────
 
   const handleDragStart = (event: DragStartEvent) => {
     const card = columns.flatMap(c => c.cards).find(c => c.id === event.active.id)
-    if (card) setActiveCard(card)
+    if (card) {
+      setActiveCard(card)
+      // Kaynak sütunu drag başında kaydet
+      const sourceCol = columns.find(c => c.cards.some(cd => cd.id === card.id))
+      sourceColumnIdRef.current = sourceCol?.id || null
+    }
   }
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -41,7 +66,6 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
 
     if (!sourceCol || !targetCol) return
 
-    // Farklı sütunlar arasında taşıma
     if (sourceCol.id !== targetCol.id) {
       setColumns(prev => {
         const activeCard = sourceCol.cards.find(c => c.id === activeId)!
@@ -63,7 +87,6 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
       return
     }
 
-    // Aynı sütun içinde sıralama
     setColumns(prev => prev.map(col => {
       if (col.id !== sourceCol.id) return col
       const oldIndex = col.cards.findIndex(c => c.id === activeId)
@@ -75,11 +98,13 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
+    const draggedCard = activeCard
+    const originalSourceColId = sourceColumnIdRef.current
     setActiveCard(null)
+    sourceColumnIdRef.current = null
     if (!over) return
 
     const activeId = active.id as string
-
     const targetCol = columns.find(c => c.cards.some(card => card.id === activeId))
     if (!targetCol) return
 
@@ -103,7 +128,20 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
       .update({ column_id: targetCol.id, position: newPosition })
       .eq('id', activeId)
 
-    if (error) showToast('Kart taşınırken bir hata oluştu.', 'error')
+    if (error) {
+      showToast('Kart taşınırken bir hata oluştu.', 'error')
+      return
+    }
+
+    // Farklı sütuna taşındıysa aktivite kaydet
+    if (draggedCard && originalSourceColId && originalSourceColId !== targetCol.id) {
+      const sourceColTitle = columns.find(c => c.id === originalSourceColId)?.title || 'Bilinmiyor'
+      await logActivity(
+        activeId,
+        'moved',
+        `"${draggedCard.title}" kartı "${sourceColTitle}" → "${targetCol.title}" sütununa taşındı`
+      )
+    }
   }
 
   // ─── Sütun İşlemleri ────────────────────────────────────────────
@@ -186,6 +224,7 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
       col.id === columnId ? { ...col, cards: [...col.cards, data] } : col
     ))
     showToast('Kart eklendi.', 'success')
+    await logActivity(data.id, 'created', `"${title.trim()}" kartı oluşturuldu`)
     return true
   }
 
@@ -246,6 +285,7 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
         : col
     ))
     showToast('Kart güncellendi.', 'success')
+    await logActivity(cardId, 'updated', `"${title.trim()}" kartı güncellendi`)
   }
 
   // ─── Kart Tamamlama ─────────────────────────────────────────────
@@ -266,6 +306,8 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
       return
     }
 
+    const card = columns.flatMap(c => c.cards).find(c => c.id === cardId)
+
     setColumns(prev => prev.map(col =>
       col.id === columnId
         ? {
@@ -278,6 +320,14 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
           }
         : col
     ))
+
+    await logActivity(
+      cardId,
+      completed ? 'completed' : 'uncompleted',
+      completed
+        ? `"${card?.title}" kartı ${completedBy} tarafından tamamlandı`
+        : `"${card?.title}" kartı tamamlanmadı olarak işaretlendi`
+    )
   }
 
   return {

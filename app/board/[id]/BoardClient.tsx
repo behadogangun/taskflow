@@ -19,6 +19,7 @@ import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortabl
 import ColumnComponent from './Column'
 import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts'
 import Logo from '@/components/ui/Logo'
+import ActivityLog from '@/components/board/ActivityLog'
 
 type Props = {
   board: Board
@@ -34,6 +35,7 @@ export default function BoardClient({ board, initialColumns }: Props) {
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all')
   const [sortByDate, setSortByDate] = useState(false)
   const router = useRouter()
+  const [showActivity, setShowActivity] = useState(false)
 
   const {
   columns,
@@ -133,6 +135,16 @@ export default function BoardClient({ board, initialColumns }: Props) {
           >
             ← Geri
           </button>
+          <button
+  onClick={() => setShowActivity(prev => !prev)}
+  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+    showActivity
+      ? 'bg-[var(--accent)] text-white border-[var(--accent)]'
+      : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+  }`}
+>
+  📋 Aktiviteler
+</button>
           <div className="w-px h-5 bg-[var(--border)]" />
           {editingBoardTitle ? (
             <input
@@ -166,7 +178,23 @@ export default function BoardClient({ board, initialColumns }: Props) {
           <Logo size="sm" />
         </div>
       </header>
-
+            {/* Aktivite Paneli */}
+<div className="fixed right-0 top-0 h-full w-72 bg-[var(--bg-surface)] border-l border-[var(--border)] z-40 transform transition-transform duration-300"
+  style={{ transform: showActivity ? 'translateX(0)' : 'translateX(100%)' }}
+>
+  <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
+    <h2 className="text-sm font-semibold text-[var(--text-primary)]">📋 Aktivite Geçmişi</h2>
+    <button
+      onClick={() => setShowActivity(false)}
+      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+    >
+      ✕
+    </button>
+  </div>
+  <div className="p-4 overflow-y-auto h-full pb-20">
+    <ActivityLog boardId={board.id} />
+  </div>
+</div>
       {/* Arama & Filtre Toolbar */}
       <div className="px-6 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
