@@ -66,9 +66,9 @@ export default function BoardClient({ board, initialColumns }: Props) {
   }, [router])
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
-  )
+  useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 10 } })
+)
 
   const filteredColumns = columns.map(col => ({
     ...col,
@@ -144,45 +144,61 @@ export default function BoardClient({ board, initialColumns }: Props) {
       </div>
 
       {/* Header */}
-      <header className="bg-[var(--bg-surface)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={() => router.push('/dashboard')} aria-label="Dashboard'a dön" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
-            ← Geri
-          </button>
-          <div className="w-px h-5 bg-[var(--border)]" />
-          {editingBoardTitle ? (
-            <input
-              autoFocus
-              type="text"
-              value={boardTitle}
-              onChange={(e) => setBoardTitle(e.target.value)}
-              onBlur={handleBoardTitleSave}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleBoardTitleSave()
-                if (e.key === 'Escape') { setBoardTitle(board.title); setEditingBoardTitle(false) }
-              }}
-              className="bg-[var(--bg-primary)] border border-[var(--accent)] rounded px-2 py-0.5 text-base font-semibold text-[var(--text-primary)] focus:outline-none w-48"
-            />
-          ) : (
-            <button onClick={() => setEditingBoardTitle(true)} className="text-base font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors" title="Board başlığını düzenlemek için tıkla">
-              {boardTitle}
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowActivity(prev => !prev)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-              showActivity ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
-            }`}
-          >
-            📋 Aktiviteler
-          </button>
-          <KeyboardShortcuts />
-          <ThemeToggle />
-          <Logo size="sm" />
-        </div>
-      </header>
+      <header className="bg-[var(--bg-surface)] border-b border-[var(--border)] px-4 py-3 flex items-center justify-between gap-2">
+  <div className="flex items-center gap-2 min-w-0">
+    <button
+      onClick={() => router.push('/dashboard')}
+      aria-label="Dashboard'a dön"
+      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0 text-sm"
+    >
+      ←
+    </button>
+    <div className="w-px h-5 bg-[var(--border)] shrink-0" />
+    {editingBoardTitle ? (
+      <input
+        autoFocus
+        type="text"
+        value={boardTitle}
+        onChange={(e) => setBoardTitle(e.target.value)}
+        onBlur={handleBoardTitleSave}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleBoardTitleSave()
+          if (e.key === 'Escape') { setBoardTitle(board.title); setEditingBoardTitle(false) }
+        }}
+        className="bg-[var(--bg-primary)] border border-[var(--accent)] rounded px-2 py-0.5 text-sm font-semibold text-[var(--text-primary)] focus:outline-none w-32"
+      />
+    ) : (
+      <button
+        onClick={() => setEditingBoardTitle(true)}
+        className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors truncate max-w-[120px] sm:max-w-none"
+        title={boardTitle}
+      >
+        {boardTitle}
+      </button>
+    )}
+  </div>
+  <div className="flex items-center gap-2 shrink-0">
+    <button
+      onClick={() => setShowActivity(prev => !prev)}
+      className={`px-2 py-1.5 rounded-lg text-xs font-medium border transition-all hidden sm:block ${
+        showActivity ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+      }`}
+    >
+      📋 Aktiviteler
+    </button>
+    <button
+      onClick={() => setShowActivity(prev => !prev)}
+      className={`p-1.5 rounded-lg text-sm border transition-all sm:hidden ${
+        showActivity ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)]'
+      }`}
+    >
+      📋
+    </button>
+    <KeyboardShortcuts />
+    <ThemeToggle />
+    <Logo size="sm" />
+  </div>
+</header>
 
       {/* Arama & Filtre Toolbar */}
       <div className="px-6 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 flex-wrap">
@@ -279,7 +295,7 @@ export default function BoardClient({ board, initialColumns }: Props) {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex flex-wrap gap-4 items-start">
+          <div className="flex gap-4 items-start overflow-x-auto pb-4 snap-x snap-mandatory">
             <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
               {filteredColumns.map(column => (
                 <ColumnComponent

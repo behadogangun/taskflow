@@ -72,10 +72,10 @@ export default function ColumnComponent({
   return (
     <>
       <div
-        ref={setColNodeRef}
-        style={colStyle}
-        className="w-72 shrink-0"
-      >
+  ref={setColNodeRef}
+  style={colStyle}
+  className="w-72 shrink-0 snap-center"
+>
         <div className="bg-[var(--bg-surface)] rounded-xl p-3">
           {/* Column Header */}
           <div className="flex items-center justify-between mb-3">
