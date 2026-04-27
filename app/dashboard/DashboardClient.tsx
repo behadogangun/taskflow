@@ -15,15 +15,22 @@ const BOARD_COLORS = [
   '#6554C0', '#00B8D9', '#172B4D', '#42526E',
 ]
 
+type CardWithBoard = {
+  id: string
+  title: string
+  due_date: string
+  columns: {board_id: string, boards: {id: string, title: string}}
+}
+
 type Props = {
   boards: Board[]
   collabBoards: Board[]
   user: User
-  urgentCardCount: number
-  overdueCardCount: number
+  urgentCards: CardWithBoard[]
+  overdueCards: CardWithBoard[]
 }
 
-export default function DashboardClient({ boards: initialBoards, collabBoards, user, urgentCardCount, overdueCardCount }: Props) {
+export default function DashboardClient({ boards: initialBoards, collabBoards, user, urgentCards, overdueCards }: Props) {
   const [newBoardTitle, setNewBoardTitle] = useState('')
   const [selectedColor, setSelectedColor] = useState('#0052CC')
   const [search, setSearch] = useState('')
@@ -58,27 +65,53 @@ export default function DashboardClient({ boards: initialBoards, collabBoards, u
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-8">Board&apos;larım</h2>
-          {/* Uyarı Bandı */}
-{(overdueCardCount > 0 || urgentCardCount > 0) && (
-  <div className="flex flex-col sm:flex-row gap-2 mb-6">
-    {overdueCardCount > 0 && (
-      <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-2.5 flex-1">
-        <span className="text-red-500 text-base">🚨</span>
-        <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-          <span className="font-bold">{overdueCardCount}</span> kart gecikmiş durumda
-        </p>
-      </div>
-    )}
-    {urgentCardCount > 0 && (
-      <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl px-4 py-2.5 flex-1">
-        <span className="text-yellow-500 text-base">⚠️</span>
-        <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">
-          <span className="font-bold">{urgentCardCount}</span> kart bugün veya yarın bitiyor
-        </p>
-      </div>
-    )}
-  </div>
-)}
+
+        {/* Uyarı Bandı */}
+        {(overdueCards.length > 0 || urgentCards.length > 0) && (
+          <div className="flex flex-col gap-2 mb-6">
+            {overdueCards.length > 0 && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-red-500 text-base">🚨</span>
+                  <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                    <span className="font-bold">{overdueCards.length}</span> kart gecikmiş durumda
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {overdueCards.slice(0, 5).map(card => (
+                    <span key={card.id} className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full">
+                      {card.columns?.boards?.title || card.title}
+                    </span>
+                  ))}
+                  {overdueCards.length > 5 && (
+                    <span className="text-xs text-red-500">+{overdueCards.length - 5} daha</span>
+                  )}
+                </div>
+              </div>
+            )}
+            {urgentCards.length > 0 && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-yellow-500 text-base">⚠️</span>
+                  <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">
+                    <span className="font-bold">{urgentCards.length}</span> kart bugün veya yarın bitiyor
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {urgentCards.slice(0, 5).map(card => (
+                    <span key={card.id} className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-2 py-0.5 rounded-full">
+                      {card.columns?.boards?.title || card.title}
+                    </span>
+                  ))}
+                  {urgentCards.length > 5 && (
+                    <span className="text-xs text-yellow-500">+{urgentCards.length - 5} daha</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Yeni Board Oluştur */}
         <div className="bg-[var(--bg-surface)] rounded-xl border border-[var(--border)] p-4 mb-4">
           <div className="flex gap-3 mb-3">
@@ -98,7 +131,6 @@ export default function DashboardClient({ boards: initialBoards, collabBoards, u
               {loading ? 'Oluşturuluyor...' : '+ Oluştur'}
             </button>
           </div>
-          {/* Renk seçici */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-[var(--text-muted)]">Renk:</span>
             <div className="flex gap-1.5">
@@ -120,10 +152,7 @@ export default function DashboardClient({ boards: initialBoards, collabBoards, u
         {/* Arama */}
         {(boards.length > 0 || collabBoards.length > 0) && (
           <div className="relative mb-6">
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -138,29 +167,17 @@ export default function DashboardClient({ boards: initialBoards, collabBoards, u
 
         {/* Kendi Board'larım */}
         {filteredBoards.length === 0 && boards.length === 0 ? (
-  <div className="text-center py-16 flex flex-col items-center gap-4">
-    <div className="text-6xl">🗂️</div>
-    <div>
-      <p className="text-lg font-semibold text-[var(--text-primary)]">Henüz hiç board yok!</p>
-      <p className="text-sm text-[var(--text-muted)] mt-1">İlk board&apos;unu oluşturmak için yukarıya bak</p>
-    </div>
-    
-  </div>
-        ) : filteredBoards.length === 0 && boards.length === 0 ? (
-  <div className="text-center py-16 flex flex-col items-center gap-4">
-    <div className="text-6xl animate-bounce">🗂️</div>
-    <div>
-      <p className="text-lg font-semibold text-[var(--text-primary)]">Henüz hiç board yok!</p>
-      <p className="text-sm text-[var(--text-muted)] mt-1">İlk board&apos;unu oluşturmak için yukarıya bak</p>
-    </div>
-    <div className="flex items-center gap-2 text-[var(--accent)]">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="-scale-x-100 -rotate-45">
-        <path d="M10 30 Q10 10 30 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" strokeDasharray="4 3"/>
-        <path d="M26 6 L30 10 L26 14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      <span className="text-sm font-medium">Buradan oluştur</span>
-    </div>
-  </div>
+          <div className="text-center py-16 flex flex-col items-center gap-4">
+            <div className="text-6xl">🗂️</div>
+            <div>
+              <p className="text-lg font-semibold text-[var(--text-primary)]">Henüz hiç board yok!</p>
+              <p className="text-sm text-[var(--text-muted)] mt-1">İlk board&apos;unu oluşturmak için yukarıya bak</p>
+            </div>
+          </div>
+        ) : filteredBoards.length === 0 ? (
+          <div className="text-center py-8 text-[var(--text-muted)]">
+            <p className="text-sm">&quot;{search}&quot; ile eşleşen board yok</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
             {filteredBoards.map((board) => (
@@ -204,8 +221,6 @@ export default function DashboardClient({ boards: initialBoards, collabBoards, u
   )
 }
 
-// ─── Alt Bileşen: BoardCard ──────────────────────────────────────
-
 type BoardCardProps = {
   board: Board
   onOpen: () => void
@@ -216,23 +231,23 @@ type BoardCardProps = {
 function BoardCard({ board, onOpen, onDelete, isOwner }: BoardCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  // Toplam kart sayısını hesapla
   const cardCount = (board as Board & { columns?: { cards?: { id: string }[] }[] }).columns?.reduce(
-  (acc: number, col: { cards?: { id: string }[] }) => acc + (col.cards?.length || 0), 0
-) || 0
+    (acc: number, col: { cards?: { id: string }[] }) => acc + (col.cards?.length || 0), 0
+  ) || 0
+
   return (
     <>
       <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden hover:shadow-md transition-shadow group flex flex-col min-h-[140px]">
         <div
-  className="h-2 group-hover:h-3 w-full transition-all duration-200"
-  style={{ backgroundColor: board.color || '#0052CC' }}
-/>
+          className="h-2 group-hover:h-3 w-full transition-all duration-200"
+          style={{ backgroundColor: board.color || '#0052CC' }}
+        />
         <div className="p-5 flex flex-col flex-1 justify-between">
           <div className="flex items-start justify-between">
             <button onClick={onOpen} className="flex-1 text-left min-w-0">
               <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
-  {board.title}
-</h3>
+                {board.title}
+              </h3>
               <p className="text-xs text-[var(--text-muted)] mt-1">{formatDate(board.created_at)}</p>
             </button>
             {isOwner && (

@@ -26,14 +26,14 @@ export default async function DashboardPage() {
 
   const { data: urgentCards } = await supabase
     .from('cards')
-    .select('id, title, due_date, column_id')
+    .select('id, title, due_date, columns(board_id, boards(id, title))')
     .eq('completed', false)
     .lte('due_date', tomorrow.toISOString().split('T')[0])
     .gte('due_date', today.toISOString().split('T')[0])
 
   const { data: overdueCards } = await supabase
     .from('cards')
-    .select('id, title, due_date')
+    .select('id, title, due_date, columns(board_id, boards(id, title))')
     .eq('completed', false)
     .lt('due_date', today.toISOString().split('T')[0])
 
@@ -42,8 +42,8 @@ export default async function DashboardPage() {
       boards={ownBoards || []}
       collabBoards={collabBoards || []}
       user={user}
-      urgentCardCount={(urgentCards || []).length}
-      overdueCardCount={(overdueCards || []).length}
+      urgentCards={(urgentCards || []) as unknown as {id: string, title: string, due_date: string, columns: {board_id: string, boards: {id: string, title: string}}}[]}
+      overdueCards={(overdueCards || []) as unknown as {id: string, title: string, due_date: string, columns: {board_id: string, boards: {id: string, title: string}}}[]}
     />
   )
 }
