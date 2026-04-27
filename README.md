@@ -12,7 +12,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Vercel](https://img.shields.io/badge/Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
 
-[🚀 Canlı Demo](https://taskflow-juwomv52h-behadoganguns-projects.vercel.app) · [🐛 Hata Bildir](https://github.com/behadogangun/taskflow/issues) · [💡 Özellik İste](https://github.com/behadogangun/taskflow/issues)
+[🚀 Canlı Demo](https://taskflow-six-murex.vercel.app) · [🐛 Hata Bildir](https://github.com/behadogangun/taskflow/issues) · [💡 Özellik İste](https://github.com/behadogangun/taskflow/issues)
 
 </div>
 
@@ -21,8 +21,6 @@
 ## 📖 Hakkında
 
 TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyle inşa edilmiş bir Kanban proje yönetim uygulamasıdır. Bireysel kullanım ve ekip işbirliği için tasarlanmıştır.
-
-
 
 ---
 
@@ -35,16 +33,24 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 ### 🗂️ Kanban Yönetimi
 - ✅ Board, sütun ve kart oluşturma
 - ✅ Sürükle-bırak ile kartları taşıma
+- ✅ **Sütun sıralama** sürükle-bırak ile
 - ✅ Sıralama sayfa yenilemesinde korunur
 - ✅ Inline başlık düzenleme
 
 ### 🃏 Kart Özellikleri
-- ✅ Öncelik seviyeleri (🟢 🟡 🔴)
-- ✅ Son teslim tarihi
+- ✅ Öncelik seviyeleri (🟢 🟡 🔴) — opsiyonel
+- ✅ Son teslim tarihi — geciken kartlar kırmızı border
 - ✅ Atanan kişi
-- ✅ Alt görevler + ilerleme çubuğu
-- ✅ Kart tamamlama (kimin tamamladığı gösterilir)
+- ✅ Alt görevler + renk değişen ilerleme çubuğu
+- ✅ Yorumlar
+- ✅ Kart tamamlama — yeşil border + kimin tamamladığı
 - ✅ Renkli etiketler (Bug, Feature, Design, Backend, Frontend, Urgent)
+
+### 🔍 Arama & Filtreleme
+- ✅ Kart başlığı ve açıklamasına göre arama
+- ✅ Önceliğe göre filtreleme
+- ✅ Son teslim tarihine göre sıralama
+- ✅ Arama çubuğu hızlı temizle butonu
 
 </td>
 <td width="50%">
@@ -54,17 +60,26 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 - ✅ Collaborator yönetimi
 - ✅ Tam düzenleme yetkisi
 - ✅ Aktivite geçmişi (gerçek zamanlı)
-### 📊 İstatistikler
+- ✅ Workspace'ten çıkma
+
+### 📊 İstatistikler & Dashboard
 - ✅ Board istatistik çubuğu
 - ✅ Tamamlanan / Geciken / Devam Eden kart sayıları
 - ✅ Renk değişen progress bar
+- ✅ Dashboard'da geciken kart uyarı bandı (board adı ile)
+- ✅ Dashboard'da bugün/yarın biten kart uyarısı
+- ✅ Board kartlarında kart sayısı
+
 ### 🎨 UI & Deneyim
 - ✅ Dark / Light mode
-- ✅ Board rengi seçimi
+- ✅ Board rengi seçimi (8 renk)
 - ✅ Klavye kısayolları
 - ✅ Toast bildirimleri
 - ✅ Skeleton loading
-- ✅ Mobil uyumlu
+- ✅ Boş sütun & board empty state
+- ✅ Mobil uyumlu — bottom sheet modal
+- ✅ Sütun başlığı hover kalem ikonu
+- ✅ Onay dialogları (silme işlemleri)
 
 </td>
 </tr>
@@ -78,8 +93,8 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 |--------|-----------|---------------|
 | **Framework** | Next.js 15 (App Router) | Server/client ayrımı, Vercel uyumu |
 | **Dil** | TypeScript | Tip güvenliği, daha az hata |
-| **Veritabanı** | Supabase (PostgreSQL) | RLS, Auth, ücretsiz tier |
-| **Drag & Drop** | dnd-kit | Aktif geliştirme, touch desteği |
+| **Veritabanı** | Supabase (PostgreSQL) | RLS, Auth, gerçek zamanlı |
+| **Drag & Drop** | dnd-kit | Aktif geliştirme, touch desteği, react-beautiful-dnd'nin bakımsız kalması |
 | **Stil** | Tailwind CSS | Hızlı, responsive, dark mode |
 | **State** | Custom Hooks | Temiz mimari, sade state yönetimi |
 
@@ -89,15 +104,16 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 
 | Klasör | İçerik |
 |--------|--------|
-| `app/board/[id]/` | Kanban tahtası — BoardClient, Column, CardItem |
+| `app/board/[id]/` | Kanban tahtası — BoardClient, Column, CardItem, SortableColumn |
 | `app/dashboard/` | Board listesi |
 | `app/profile/` | Profil & collaboration |
+| `app/auth/callback/` | Email doğrulama callback |
 | `app/login/` | Giriş sayfası |
 | `app/register/` | Kayıt sayfası |
-| `components/board/` | CardModal, Checklist, Comments |
+| `components/board/` | CardModal, Checklist, Comments, ActivityLog |
 | `components/providers/` | ThemeProvider, ToastProvider |
 | `components/ui/` | Logo, UserMenu, ConfirmDialog, PriorityBadge |
-| `hooks/useBoard.ts` | Kanban CRUD + drag & drop logic |
+| `hooks/useBoard.ts` | Kanban CRUD + drag & drop (kart + sütun) |
 | `hooks/useBoards.ts` | Dashboard board yönetimi |
 | `lib/supabase/` | Client & Server instance |
 | `lib/utils.ts` | Yardımcı fonksiyonlar |
@@ -109,10 +125,9 @@ TaskFlow, Trello'dan ilham alınarak geliştirilmiş, modern web teknolojileriyl
 
 ### 🔢 Sıralama Algoritması
 
-Her kart `position: float` alanı tutar. İki öğe arasına ekleme yaparken:
+Her kart ve sütun `position: float` alanı tutar. İki öğe arasına ekleme yaparken:
 newPosition = (prevCard.position + nextCard.position) / 2
-
-Bu yaklaşımla tüm listeyi yeniden numaralandırmak gerekmez. Sadece taşınan kart güncellenir — O(1) işlem.
+Tüm listeyi yeniden numaralandırmak gerekmez. Sadece taşınan öğe güncellenir — O(1) işlem.
 
 ### 🖱️ Drag & Drop Stratejisi
 
@@ -121,6 +136,7 @@ Bu yaklaşımla tüm listeyi yeniden numaralandırmak gerekmez. Sadece taşınan
 - `PointerSensor` + `TouchSensor` ile hem mouse hem dokunmatik ekran desteği
 - `DragOverlay` ile sürükleme sırasında görsel kopya
 - Optimistik UI — state önce güncellenir, ardından veritabanına yazılır
+- Tek `DndContext` içinde hem kart hem sütun sıralama — `rectIntersection` ve `closestCorners` collision detection'ları dinamik olarak seçiliyor
 
 ### 🔐 Güvenlik Mimarisi
 
@@ -144,7 +160,83 @@ collaborators (id, owner_id, collaborator_id, created_at)
 invitations   (id, owner_id, code, created_at)
 checklists    (id, card_id, title, completed, position, created_at)
 comments      (id, card_id, user_id, content, created_at)
+activities    (id, card_id, board_id, user_id, action, detail, created_at)
 ```
+
+---
+
+## 🧪 Kalite Güvencesi
+
+TaskFlow, production'a almadan önce aşağıdaki senaryolar kapsamlı şekilde test edilmiştir.
+
+### 🔐 Auth & Güvenlik
+| Senaryo | Sonuç |
+|---------|-------|
+| Kayıt, giriş, email doğrulama | ✅ |
+| Yanlış şifre ile giriş | ✅ Hata mesajı |
+| Şifre değiştirme | ✅ |
+| Yetkisiz `/dashboard` erişimi | ✅ Login'e yönlendirme |
+| RLS ile kullanıcı verisi izolasyonu | ✅ |
+
+### 📋 Board & Sütun
+| Senaryo | Sonuç |
+|---------|-------|
+| Board oluşturma, düzenleme, silme | ✅ |
+| Sütun ekleme, başlık düzenleme, silme | ✅ |
+| Sütun sürükle-bırak sıralama | ✅ |
+| Sıralama sayfa yenilemede korunma | ✅ |
+| Uzun board adı truncate | ✅ |
+
+### 🃏 Kart İşlemleri
+| Senaryo | Sonuç |
+|---------|-------|
+| Kart oluşturma, düzenleme, silme | ✅ |
+| Öncelik, tarih, atanan kişi, etiket | ✅ |
+| Yeni kart prioritysiz gelir | ✅ |
+| Alt görevler + renk değişen progress bar | ✅ |
+| Yorumlar | ✅ |
+| Kart tamamlama / geri alma | ✅ |
+| Tamamlanan kart yeşil border | ✅ |
+| Geçmiş tarihli kart kırmızı border | ✅ |
+| Sürükle-bırak aynı sütun içi | ✅ |
+| Sürükle-bırak sütunlar arası | ✅ |
+| Kart en alta sürükleme | ✅ |
+| Sıralama sayfa yenilemede korunma | ✅ |
+
+### 🔍 Arama & Filtreleme
+| Senaryo | Sonuç |
+|---------|-------|
+| Başlık ve açıklamaya göre arama | ✅ |
+| Arama çubuğu hızlı temizle | ✅ |
+| Önceliğe göre filtreleme | ✅ |
+| Tarihe göre sıralama | ✅ |
+
+### 👥 İşbirliği
+| Senaryo | Sonuç |
+|---------|-------|
+| Davet kodu oluşturma ve kopyalama | ✅ |
+| Başka hesapla workspace'e katılma | ✅ |
+| Paylaşılan board'lara erişim | ✅ |
+| Collaborator ekleme ve kaldırma | ✅ |
+| Workspace'ten çıkma | ✅ |
+| Aktivite geçmişi gerçek zamanlı | ✅ |
+
+### 📱 Mobil Uyumluluk
+| Senaryo | Sonuç |
+|---------|-------|
+| Tüm sayfalar responsive | ✅ |
+| Kart modal bottom sheet | ✅ |
+| Modal arka plan scroll lock | ✅ |
+| Yatay sütun kaydırma | ✅ |
+| Edit/sil butonları görünürlüğü | ✅ |
+
+### ⚡ Edge Cases
+| Senaryo | Sonuç |
+|---------|-------|
+| Uzun metin taşma kontrolü | ✅ |
+| Boş state'ler (board, sütun, kart) | ✅ |
+| Dark/Light mode tüm sayfalarda | ✅ |
+| İnternet kesintisinde hata mesajları | ✅ |
 
 ---
 
@@ -210,4 +302,3 @@ MIT © 2026 [Beha Dogangun](https://github.com/behadogangun)
 ⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
 
 </div>
-
