@@ -73,9 +73,13 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
   return (
     <>
       <div
-        ref={setNodeRef}
-        style={style}
-        className="bg-[var(--bg-card)] rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group border border-[var(--border)]"
+  ref={setNodeRef}
+  style={style}
+  className={`bg-[var(--bg-card)] rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group border ${
+    card.completed
+      ? 'border-2 border-green-400'
+      : 'border-[var(--border)]'
+  }`}
         {...attributes}
         {...listeners}
       >

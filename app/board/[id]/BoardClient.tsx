@@ -165,7 +165,7 @@ export default function BoardClient({ board, initialColumns }: Props) {
               className="bg-[var(--bg-primary)] border border-[var(--accent)] rounded px-2 py-0.5 text-sm font-semibold text-[var(--text-primary)] focus:outline-none w-32"
             />
           ) : (
-            <button onClick={() => setEditingBoardTitle(true)} className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors truncate max-w-[120px] sm:max-w-none" title={boardTitle}>
+            <button onClick={() => setEditingBoardTitle(true)} className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors truncate max-w-[120px] sm:max-w-xs" title={boardTitle}>
               {boardTitle}
             </button>
           )}
