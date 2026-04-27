@@ -14,7 +14,7 @@ import {
   useSensor,
   useSensors,
   closestCorners,
-  closestCenter,
+  rectIntersection,
 } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import SortableColumn from './SortableColumn'
@@ -254,76 +254,100 @@ export default function BoardClient({ board, initialColumns }: Props) {
       )}
 
       {/* Kanban Tahtası */}
-<div className="p-6 overflow-x-auto">
-  <DndContext
-    sensors={sensors}
-    collisionDetection={closestCorners}
-    onDragStart={(e) => { handleColumnDragStart(e); handleDragStart(e) }}
-    onDragOver={handleDragOver}
-    onDragEnd={(e) => { handleColumnDragEnd(e); handleDragEnd(e) }}
-  >
-    <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
-      <div className="flex gap-4 items-start pb-4">
-        {filteredColumns.map(column => (
-          <SortableColumn
-            key={column.id}
-            column={column}
-            onAddCard={addCard}
-            onDeleteColumn={deleteColumn}
-            onDeleteCard={deleteCard}
-            onUpdateCard={updateCard}
-            onUpdateColumnTitle={updateColumnTitle}
-            onToggleComplete={toggleComplete}
-            cardSensors={sensors}
-            onCardDragStart={handleDragStart}
-            onCardDragOver={handleDragOver}
-            onCardDragEnd={handleDragEnd}
-            activeCard={activeCard}
-          />
-        ))}
+      <div className="p-6 overflow-x-auto">
+        <DndContext
+  sensors={sensors}
+  collisionDetection={(args) => {
+    const activeId = args.active.id as string
+    const isColumn = columns.some(c => c.id === activeId)
+    return isColumn ? rectIntersection(args) : closestCorners(args)
+  }}
+  onDragStart={(e) => {
+    const activeId = e.active.id as string
+    const isColumn = columns.some(c => c.id === activeId)
+    if (isColumn) {
+      handleColumnDragStart(e)
+    } else {
+      handleDragStart(e)
+    }
+  }}
+  onDragOver={(e) => {
+    const activeId = e.active.id as string
+    const isColumn = columns.some(c => c.id === activeId)
+    if (!isColumn) handleDragOver(e)
+  }}
+  onDragEnd={(e) => {
+    const activeId = e.active.id as string
+    const isColumn = columns.some(c => c.id === activeId)
+    if (isColumn) {
+      handleColumnDragEnd(e)
+    } else {
+      handleDragEnd(e)
+    }
+  }}
+>
+          <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
+            <div className="flex gap-4 items-start pb-4">
+              {filteredColumns.map(column => (
+                <SortableColumn
+                  key={column.id}
+                  column={column}
+                  onAddCard={addCard}
+                  onDeleteColumn={deleteColumn}
+                  onDeleteCard={deleteCard}
+                  onUpdateCard={updateCard}
+                  onUpdateColumnTitle={updateColumnTitle}
+                  onToggleComplete={toggleComplete}
+                  cardSensors={sensors}
+                  onCardDragStart={handleDragStart}
+                  onCardDragOver={handleDragOver}
+                  onCardDragEnd={handleDragEnd}
+                  activeCard={activeCard}
+                />
+              ))}
 
-        <div className="w-72 shrink-0">
-          {addingColumn ? (
-            <div className="bg-[var(--bg-surface)] rounded-xl p-3 shadow-sm">
-              <input
-                autoFocus
-                type="text"
-                value={newColumnTitle}
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddColumn()
-                  if (e.key === 'Escape') setAddingColumn(false)
-                }}
-                placeholder="Sütun adı..."
-                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
-              />
-              <div className="flex gap-2">
-                <button onClick={handleAddColumn} disabled={!newColumnTitle.trim()} className="bg-[var(--accent)] text-white px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50">Ekle</button>
-                <button onClick={() => setAddingColumn(false)} className="text-[var(--text-secondary)] px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--border)] transition-colors">İptal</button>
+              <div className="w-72 shrink-0">
+                {addingColumn ? (
+                  <div className="bg-[var(--bg-surface)] rounded-xl p-3 shadow-sm">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={newColumnTitle}
+                      onChange={(e) => setNewColumnTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleAddColumn()
+                        if (e.key === 'Escape') setAddingColumn(false)
+                      }}
+                      placeholder="Sütun adı..."
+                      className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
+                    />
+                    <div className="flex gap-2">
+                      <button onClick={handleAddColumn} disabled={!newColumnTitle.trim()} className="bg-[var(--accent)] text-white px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50">Ekle</button>
+                      <button onClick={() => setAddingColumn(false)} className="text-[var(--text-secondary)] px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--border)] transition-colors">İptal</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => setAddingColumn(true)} className="w-full bg-[var(--bg-surface)]/60 hover:bg-[var(--bg-surface)] rounded-xl p-3 text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm font-medium transition-all border-2 border-dashed border-[var(--border)] hover:border-[var(--text-muted)]">
+                    + Sütun Ekle
+                  </button>
+                )}
               </div>
             </div>
-          ) : (
-            <button onClick={() => setAddingColumn(true)} className="w-full bg-[var(--bg-surface)]/60 hover:bg-[var(--bg-surface)] rounded-xl p-3 text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm font-medium transition-all border-2 border-dashed border-[var(--border)] hover:border-[var(--text-muted)]">
-              + Sütun Ekle
-            </button>
-          )}
-        </div>
-      </div>
-    </SortableContext>
+          </SortableContext>
 
-    <DragOverlay>
-      {activeCard ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--accent)] rounded-lg p-3 shadow-xl w-72 rotate-2 opacity-90">
-          <p className="text-sm font-medium text-[var(--text-primary)]">{activeCard.title}</p>
-        </div>
-      ) : activeColumn ? (
-        <div className="w-72 bg-[var(--bg-surface)] rounded-xl p-3 shadow-xl opacity-90 border border-[var(--accent)]">
-          <p className="text-sm font-semibold text-[var(--text-primary)]">{activeColumn.title}</p>
-        </div>
-      ) : null}
-    </DragOverlay>
-  </DndContext>
-</div>
+          <DragOverlay>
+            {activeCard ? (
+              <div className="bg-[var(--bg-card)] border border-[var(--accent)] rounded-lg p-3 shadow-xl w-72 rotate-2 opacity-90">
+                <p className="text-sm font-medium text-[var(--text-primary)]">{activeCard.title}</p>
+              </div>
+            ) : activeColumn ? (
+              <div className="w-72 bg-[var(--bg-surface)] rounded-xl p-3 shadow-xl opacity-90 border border-[var(--accent)]">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">{activeColumn.title}</p>
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      </div>
 
       {/* Board boşsa empty state */}
       {columns.length === 0 && (

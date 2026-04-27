@@ -39,6 +39,7 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
 
   const handleColumnDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
+    console.log('column drag end:', active.id, over?.id)
     setActiveColumn(null)
     if (!over || active.id === over.id) return
 
