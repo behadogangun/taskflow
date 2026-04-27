@@ -112,9 +112,14 @@ export default function Checklist({ cardId }: Props) {
           </div>
           <div className="h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-500 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+  className={`h-full rounded-full transition-all duration-300 ${
+    progress === 100 ? 'bg-green-500' :
+    progress >= 60 ? 'bg-green-300' :
+    progress >= 30 ? 'bg-yellow-500' :
+    'bg-red-500'
+  }`}
+  style={{ width: `${progress}%` }}
+/>
           </div>
         </div>
       )}
