@@ -100,10 +100,10 @@ export default function BoardClient({ board, initialColumns }: Props) {
   }).length
   const progressPercent = totalCards > 0 ? Math.round((completedCards / totalCards) * 100) : 0
   const progressColor =
-    progressPercent === 100 ? 'bg-green-500' :
-    progressPercent >= 60 ? 'bg-blue-500' :
-    progressPercent >= 30 ? 'bg-yellow-500' :
-    'bg-red-500'
+  progressPercent === 100 ? 'bg-green-400' :
+  progressPercent >= 75 ? 'bg-green-600' :
+  progressPercent >= 40 ? 'bg-yellow-500' :
+  'bg-red-500'
 
   const handleAddColumn = async () => {
     const success = await addColumn(newColumnTitle)
@@ -192,11 +192,25 @@ export default function BoardClient({ board, initialColumns }: Props) {
       {/* Arama & Filtre Toolbar */}
       <div className="px-6 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Kart ara..." className="w-full border border-[var(--border)] rounded-lg pl-9 pr-4 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]" />
-        </div>
+  <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+  <input
+    type="text"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    placeholder="Kart ara..."
+    className="w-full border border-[var(--border)] rounded-lg pl-9 pr-8 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+  />
+  {searchQuery && (
+    <button
+      onClick={() => setSearchQuery('')}
+      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+    >
+      ✕
+    </button>
+  )}
+</div>
         <div className="flex items-center gap-1.5">
           {(['all', 'low', 'medium', 'high'] as const).map(p => (
             <button key={p} onClick={() => setFilterPriority(p)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${filterPriority === p ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'}`}>
@@ -245,7 +259,12 @@ export default function BoardClient({ board, initialColumns }: Props) {
               <div className="flex-1 h-3 bg-[var(--border)] rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${progressPercent}%` }} />
               </div>
-              <span className={`text-xs font-bold ${progressPercent === 100 ? 'text-green-500' : progressPercent >= 60 ? 'text-blue-500' : progressPercent >= 30 ? 'text-yellow-500' : 'text-red-500'}`}>
+              <span className={`text-xs font-bold ${
+  progressPercent === 100 ? 'text-green-400' :
+  progressPercent >= 75 ? 'text-green-600' :
+  progressPercent >= 40 ? 'text-yellow-500' :
+  'text-red-500'
+}`}>
                 %{progressPercent}
               </span>
             </div>

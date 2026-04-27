@@ -81,10 +81,12 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     if (!sourceCol || !targetCol) return
 
     if (sourceCol.id !== targetCol.id) {
-      setColumns(prev => {
-        const activeCard = sourceCol.cards.find(c => c.id === activeId)!
-        const overIndex = targetCol.cards.findIndex(c => c.id === overId)
-        const insertIndex = overIndex >= 0 ? overIndex : targetCol.cards.length
+  setColumns(prev => {
+    const activeCard = sourceCol.cards.find(c => c.id === activeId)!
+    const overIndex = targetCol.cards.findIndex(c => c.id === overId)
+    // overId sütun ID'si ise en sona ekle, kart ID'si ise o konuma ekle
+    const isOverColumn = targetCol.id === overId
+    const insertIndex = isOverColumn ? targetCol.cards.length : overIndex >= 0 ? overIndex : targetCol.cards.length
 
         return prev.map(col => {
           if (col.id === sourceCol.id) return { ...col, cards: col.cards.filter(c => c.id !== activeId) }
