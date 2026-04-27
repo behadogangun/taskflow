@@ -82,7 +82,7 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
         {/* Üst satır: öncelik flag + aksiyonlar */}
         <div className="flex items-center justify-between mb-2">
           <PriorityBadge priority={card.priority} />
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <button
               onClick={(e) => { e.stopPropagation(); setModalOpen(true) }}
               className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors text-xs px-1"
