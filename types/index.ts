@@ -46,7 +46,7 @@ export type Card = {
   title: string
   description: string | null
   position: number
-  priority: Priority
+  priority: Priority | null
   due_date: string | null
   labels: string[]
   assignee: string | null

@@ -9,7 +9,7 @@ import Comments from '@/components/board/Comments'
 type Props = {
   card: Card
   onClose: () => void
-  onSave: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null, labels: string[]) => void
+  onSave: (cardId: string, columnId: string, title: string, description: string, priority: Priority | null, dueDate: string | null, assignee: string | null, labels: string[]) => void
   columnId: string
 }
 
@@ -27,18 +27,15 @@ const LABELS = [
 export default function CardModal({ card, onClose, onSave, columnId }: Props) {
   const [title, setTitle] = useState(card.title)
   const [description, setDescription] = useState(card.description || '')
-  const [priority, setPriority] = useState<Priority>(card.priority)
+  const [priority, setPriority] = useState<Priority | null>(card.priority || null)
   const [dueDate, setDueDate] = useState(card.due_date || '')
   const [assignee, setAssignee] = useState(card.assignee || '')
   const [labels, setLabels] = useState<string[]>(card.labels || [])
   const [closing, setClosing] = useState(false)
 
-  // Body scroll lock
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = ''
-    }
+    return () => { document.body.style.overflow = '' }
   }, [])
 
   const handleClose = () => {
@@ -49,7 +46,6 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
     }, 150)
   }
 
-  // ESC tuşuyla kapat
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') handleClose()
@@ -77,21 +73,14 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] shrink-0">
           <h2 className="text-base font-semibold text-[var(--text-primary)]">Kart Detayı</h2>
-          <button
-            onClick={handleClose}
-            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--border)]"
-          >
-            ✕
-          </button>
+          <button onClick={handleClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--border)]">✕</button>
         </div>
 
         {/* Modal Body */}
         <div className="px-6 py-4 space-y-4 overflow-y-auto flex-1">
           {/* Başlık */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Başlık
-            </label>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">Başlık</label>
             <input
               autoFocus
               type="text"
@@ -103,9 +92,7 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
           {/* Açıklama */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Açıklama
-            </label>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">Açıklama</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -117,14 +104,19 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
           {/* Öncelik */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Öncelik
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">Öncelik</label>
+              {priority && (
+                <button onClick={() => setPriority(null)} className="text-xs text-[var(--text-muted)] hover:text-red-500 transition-colors">
+                  Temizle
+                </button>
+              )}
+            </div>
             <div className="flex gap-2">
               {priorities.map((p) => (
                 <button
                   key={p}
-                  onClick={() => setPriority(p)}
+                  onClick={() => setPriority(prev => prev === p ? null : p)}
                   className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border-2 ${
                     priority === p
                       ? 'border-[var(--accent)] bg-[var(--accent)]/10'
@@ -139,17 +131,13 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
           {/* Etiketler */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Etiketler
-            </label>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">Etiketler</label>
             <div className="flex flex-wrap gap-2">
               {LABELS.map(label => (
                 <button
                   key={label.id}
                   onClick={() => setLabels(prev =>
-                    prev.includes(label.id)
-                      ? prev.filter(l => l !== label.id)
-                      : [...prev, label.id]
+                    prev.includes(label.id) ? prev.filter(l => l !== label.id) : [...prev, label.id]
                   )}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border-2 transition-all ${
                     labels.includes(label.id)
@@ -166,9 +154,7 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
           {/* Son Teslim Tarihi */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Son Teslim Tarihi
-            </label>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">Son Teslim Tarihi</label>
             <input
               type="date"
               value={dueDate}
@@ -179,9 +165,7 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
           {/* Atanan Kişi */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Atanan Kişi
-            </label>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">Atanan Kişi</label>
             <input
               type="text"
               value={assignee}
@@ -193,9 +177,7 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
           {/* Alt Görevler */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Alt Görevler
-            </label>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">Alt Görevler</label>
             <div className="bg-[var(--bg-primary)] rounded-xl p-3 border border-[var(--border)]">
               <Checklist cardId={card.id} />
             </div>
@@ -203,9 +185,7 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
           {/* Yorumlar */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
-              Yorumlar
-            </label>
+            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">Yorumlar</label>
             <div className="bg-[var(--bg-primary)] rounded-xl p-4 border border-[var(--border)]">
               <Comments cardId={card.id} />
             </div>
@@ -214,12 +194,7 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
         {/* Modal Footer */}
         <div className="px-6 py-4 border-t border-[var(--border)] flex gap-3 justify-end shrink-0">
-          <button
-            onClick={handleClose}
-            className="px-4 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--border)] transition-colors"
-          >
-            İptal
-          </button>
+          <button onClick={handleClose} className="px-4 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--border)] transition-colors">İptal</button>
           <button
             onClick={handleSave}
             disabled={!title.trim()}

@@ -1,7 +1,7 @@
 import { Priority } from '@/types'
 
 type Props = {
-  priority: Priority
+  priority?: Priority
   size?: 'sm' | 'md'
 }
 
@@ -27,6 +27,8 @@ const config: Record<Priority, { label: string; color: string; bg: string; dot: 
 }
 
 export default function PriorityBadge({ priority, size = 'sm' }: Props) {
+  if (!priority) return null
+
   const { label, color, bg, dot } = config[priority]
 
   return (

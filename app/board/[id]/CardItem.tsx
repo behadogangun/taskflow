@@ -10,18 +10,19 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { createClient } from '@/lib/supabase/client'
 
 const LABELS = [
-  { id: 'bug', text: 'Bug', color: 'bg-red-500' },
-  { id: 'feature', text: 'Feature', color: 'bg-blue-500' },
-  { id: 'design', text: 'Design', color: 'bg-purple-500' },
-  { id: 'backend', text: 'Backend', color: 'bg-yellow-500' },
-  { id: 'frontend', text: 'Frontend', color: 'bg-green-500' },
-  { id: 'urgent', text: 'Urgent', color: 'bg-orange-500' },
+  { id: 'bug', text: 'Bug', color: 'bg-red-400' },
+  { id: 'feature', text: 'Feature', color: 'bg-blue-400' },
+  { id: 'design', text: 'Design', color: 'bg-violet-400' },
+  { id: 'backend', text: 'Backend', color: 'bg-amber-400' },
+  { id: 'frontend', text: 'Frontend', color: 'bg-emerald-400' },
+  { id: 'urgent', text: 'Urgent', color: 'bg-orange-400' },
 ]
+
 type Props = {
   card: Card
   columnId: string
   onDelete: (cardId: string, columnId: string) => void
-  onUpdate: (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null, labels: string[]) => void
+  onUpdate: (cardId: string, columnId: string, title: string, description: string, priority: Priority | null, dueDate: string | null, assignee: string | null, labels: string[]) => void
   onToggleComplete: (cardId: string, columnId: string, completed: boolean, completedBy: string) => void
 }
 
@@ -73,19 +74,19 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
   return (
     <>
       <div
-  ref={setNodeRef}
-  style={style}
-  className={`bg-[var(--bg-card)] rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group border ${
-    card.completed
-      ? 'border-2 border-green-400'
-      : 'border-[var(--border)]'
-  }`}
+        ref={setNodeRef}
+        style={style}
+        className={`bg-[var(--bg-card)] rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group border ${
+          card.completed
+            ? 'border-2 border-green-400'
+            : 'border-[var(--border)]'
+        }`}
         {...attributes}
         {...listeners}
       >
         {/* Üst satır: öncelik flag + aksiyonlar */}
         <div className="flex items-center justify-between mb-2">
-          <PriorityBadge priority={card.priority} />
+          <PriorityBadge priority={card.priority ?? undefined} />
           <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <button
               onClick={(e) => { e.stopPropagation(); setModalOpen(true) }}
@@ -134,7 +135,7 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
             {card.title}
           </p>
         </div>
-             
+
         {/* Tamamlayan kişi */}
         {card.completed && card.completed_by && (
           <div className="mt-1.5 ml-6 flex items-center gap-1">
@@ -179,22 +180,22 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
       </div>
 
       {/* Etiketler */}
-{card.labels && card.labels.length > 0 && (
-  <div className="mt-2 flex flex-wrap gap-1 ml-6">
-    {card.labels.map(labelId => {
-      const label = LABELS.find(l => l.id === labelId)
-      if (!label) return null
-      return (
-        <span
-          key={labelId}
-          className={`${label.color} text-white text-xs px-2 py-0.5 rounded-full font-medium`}
-        >
-          {label.text}
-        </span>
-      )
-    })}
-  </div>
-)}
+      {card.labels && card.labels.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1 ml-6">
+          {card.labels.map(labelId => {
+            const label = LABELS.find(l => l.id === labelId)
+            if (!label) return null
+            return (
+              <span
+                key={labelId}
+                className={`${label.color} text-white text-xs px-2 py-0.5 rounded-full font-medium`}
+              >
+                {label.text}
+              </span>
+            )
+          })}
+        </div>
+      )}
 
       {modalOpen && (
         <CardModal

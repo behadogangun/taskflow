@@ -39,7 +39,6 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
 
   const handleColumnDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
-    console.log('column drag end:', active.id, over?.id)
     setActiveColumn(null)
     if (!over || active.id === over.id) return
 
@@ -152,7 +151,11 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
   const addColumn = async (title: string): Promise<boolean> => {
     if (!title.trim()) return false
     const position = getNextPosition(columns)
-    const { data, error } = await supabase.from('columns').insert({ board_id: boardId, title: title.trim(), position }).select().single()
+    const { data, error } = await supabase.from('columns').insert({ 
+      board_id: boardId, 
+      title: title.trim(), 
+      position 
+    }).select().single()
     if (error) { showToast('Sütun eklenirken bir hata oluştu.', 'error'); return false }
     setColumns(prev => [...prev, { ...data, cards: [] }])
     showToast('Sütun eklendi.', 'success')
@@ -180,7 +183,12 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     const column = columns.find(c => c.id === columnId)
     if (!column) return false
     const position = getNextPosition(column.cards)
-    const { data, error } = await supabase.from('cards').insert({ column_id: columnId, title: title.trim(), position }).select().single()
+    const { data, error } = await supabase.from('cards').insert({ 
+      column_id: columnId, 
+      title: title.trim(), 
+      position,
+      priority: null
+    }).select().single()
     if (error) { showToast('Kart eklenirken bir hata oluştu.', 'error'); return false }
     setColumns(prev => prev.map(col => col.id === columnId ? { ...col, cards: [...col.cards, data] } : col))
     showToast('Kart eklendi.', 'success')
@@ -195,7 +203,7 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     showToast('Kart silindi.', 'delete')
   }
 
-  const updateCard = async (cardId: string, columnId: string, title: string, description: string, priority: Priority, dueDate: string | null, assignee: string | null, labels: string[]): Promise<void> => {
+  const updateCard = async (cardId: string, columnId: string, title: string, description: string, priority: Priority | null, dueDate: string | null, assignee: string | null, labels: string[]): Promise<void> => {
     const { error } = await supabase.from('cards').update({ title: title.trim(), description: description.trim(), priority, due_date: dueDate, assignee, labels }).eq('id', cardId)
     if (error) { showToast('Kart güncellenirken bir hata oluştu.', 'error'); return }
     setColumns(prev => prev.map(col =>
