@@ -72,12 +72,12 @@ export default function ColumnComponent({
         style={{ ...style, opacity: isDragging ? 0.5 : 1 }}
         className="w-72 shrink-0 snap-center"
       >
-        <div className="bg-[var(--bg-surface)] rounded-xl p-3">
+        <div className="bg-[var(--bg-surface)] rounded-xl overflow-hidden">
           {/* Column Header */}
           <div
             {...dragHandleAttributes}
             {...dragHandleListeners}
-            className="flex items-center justify-between mb-3 cursor-grab active:cursor-grabbing"
+            className="flex items-center justify-between cursor-grab active:cursor-grabbing bg-[var(--border)]/50 px-3 py-2.5 border-b border-[var(--border)]"
           >
             {editingTitle ? (
               <input
@@ -99,10 +99,10 @@ export default function ColumnComponent({
               />
             ) : (
               <button
-  onClick={() => setEditingTitle(true)}
-  className="font-semibold text-[var(--text-primary)] text-sm hover:text-[var(--accent)] transition-colors text-left flex-1 flex items-center gap-1 group/title"
-  title="Başlığı düzenlemek için tıkla"
->
+                onClick={() => setEditingTitle(true)}
+                className="font-semibold text-[var(--text-primary)] text-sm hover:text-[var(--accent)] transition-colors text-left flex-1 flex items-center gap-1 group/title"
+                title="Başlığı düzenlemek için tıkla"
+              >
                 {column.title}
                 <span className="opacity-0 group-hover/title:opacity-100 transition-opacity text-xs">✏️</span>
               </button>
@@ -130,69 +130,71 @@ export default function ColumnComponent({
           </div>
 
           {/* Cards */}
-          <div
-            ref={setNodeRef}
-            className={`space-y-2 transition-colors rounded-lg ${isOver ? 'bg-[var(--accent)]/10' : ''} ${column.cards.length === 0 ? 'min-h-0' : 'min-h-16'}`}
-          >
-            <SortableContext
-              items={column.cards.map(c => c.id)}
-              strategy={verticalListSortingStrategy}
+          <div className="p-3">
+            <div
+              ref={setNodeRef}
+              className={`space-y-2 transition-colors rounded-lg ${isOver ? 'bg-[var(--accent)]/10' : ''} ${column.cards.length === 0 ? 'min-h-0' : 'min-h-16'}`}
             >
-              {column.cards.map(card => (
-                <CardItem
-                  key={card.id}
-                  card={card}
-                  columnId={column.id}
-                  onDelete={onDeleteCard}
-                  onUpdate={onUpdateCard}
-                  onToggleComplete={onToggleComplete}
-                />
-              ))}
-            </SortableContext>
-          </div>
+              <SortableContext
+                items={column.cards.map(c => c.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {column.cards.map(card => (
+                  <CardItem
+                    key={card.id}
+                    card={card}
+                    columnId={column.id}
+                    onDelete={onDeleteCard}
+                    onUpdate={onUpdateCard}
+                    onToggleComplete={onToggleComplete}
+                  />
+                ))}
+              </SortableContext>
+            </div>
 
-          {/* Add Card */}
-          <div className={column.cards.length === 0 ? '' : 'mt-2'}>
-            {addingCard ? (
-              <div className="bg-[var(--bg-card)] rounded-lg p-2">
-                <input
-                  autoFocus
-                  type="text"
-                  value={newCardTitle}
-                  onChange={(e) => setNewCardTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddCard()
-                    if (e.key === 'Escape') setAddingCard(false)
-                  }}
-                  placeholder="Kart başlığı..."
-                  className="w-full border border-[var(--border)] rounded px-2 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
-                />
-                <div className="flex gap-2">
-                  <button onClick={handleAddCard} className="bg-[var(--accent)] text-white px-3 py-1 rounded text-xs hover:bg-[var(--accent-hover)] transition-colors">Ekle</button>
-                  <button onClick={() => setAddingCard(false)} className="text-[var(--text-secondary)] px-3 py-1 rounded text-xs hover:bg-[var(--border)] transition-colors">İptal</button>
+            {/* Add Card */}
+            <div className={column.cards.length === 0 ? '' : 'mt-2'}>
+              {addingCard ? (
+                <div className="bg-[var(--bg-card)] rounded-lg p-2">
+                  <input
+                    autoFocus
+                    type="text"
+                    value={newCardTitle}
+                    onChange={(e) => setNewCardTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddCard()
+                      if (e.key === 'Escape') setAddingCard(false)
+                    }}
+                    placeholder="Kart başlığı..."
+                    className="w-full border border-[var(--border)] rounded px-2 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={handleAddCard} className="bg-[var(--accent)] text-white px-3 py-1 rounded text-xs hover:bg-[var(--accent-hover)] transition-colors">Ekle</button>
+                    <button onClick={() => setAddingCard(false)} className="text-[var(--text-secondary)] px-3 py-1 rounded text-xs hover:bg-[var(--border)] transition-colors">İptal</button>
+                  </div>
                 </div>
-              </div>
-            ) : column.cards.length === 0 ? (
-              <button
-                onClick={() => setAddingCard(true)}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="w-full flex flex-col items-center justify-center py-6 px-3 border-2 border-dashed border-[var(--accent)]/40 rounded-xl hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all group/add"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--accent)]/50 group-hover/add:text-[var(--accent)] mb-2 transition-colors">
-                  <rect x="3" y="3" width="18" height="18" rx="3" />
-                  <path d="M12 8v8M8 12h8" />
-                </svg>
-                <p className="text-xs text-[var(--text-muted)] group-hover/add:text-[var(--accent)] transition-colors">Kart eklemek için buraya tıkla</p>
-              </button>
-            ) : (
-              <button
-                onClick={() => setAddingCard(true)}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="w-full text-left text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm py-1 px-2 hover:bg-[var(--border)] rounded-lg transition-colors"
-              >
-                + Kart ekle
-              </button>
-            )}
+              ) : column.cards.length === 0 ? (
+                <button
+                  onClick={() => setAddingCard(true)}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="w-full flex flex-col items-center justify-center py-6 px-3 border-2 border-dashed border-[var(--accent)]/40 rounded-xl hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all group/add"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--accent)]/50 group-hover/add:text-[var(--accent)] mb-2 transition-colors">
+                    <rect x="3" y="3" width="18" height="18" rx="3" />
+                    <path d="M12 8v8M8 12h8" />
+                  </svg>
+                  <p className="text-xs text-[var(--text-muted)] group-hover/add:text-[var(--accent)] transition-colors">Kart eklemek için buraya tıkla</p>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setAddingCard(true)}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="w-full text-left text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm py-1 px-2 hover:bg-[var(--border)] rounded-lg transition-colors"
+                >
+                  + Kart ekle
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

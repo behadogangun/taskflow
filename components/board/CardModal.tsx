@@ -62,14 +62,14 @@ export default function CardModal({ card, onClose, onSave, columnId }: Props) {
 
   return (
     <div
-      className={`fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center sm:p-4 transition-opacity duration-150 ${
-        closing ? 'opacity-0' : 'opacity-100'
-      }`}
+  className={`fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center sm:p-4 transition-opacity duration-150 ${
+    closing ? 'opacity-0' : 'opacity-100'
+  }`}
       onClick={(e) => e.target === e.currentTarget && handleClose()}
     >
-      <div className={`bg-[var(--bg-surface)] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg border border-[var(--border)] max-h-[92vh] flex flex-col transition-all duration-150 ${
-        closing ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
-      }`}>
+      <div className={`bg-[var(--bg-surface)] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg border border-[var(--border)] max-h-[92vh] flex flex-col transition-all duration-150 overflow-hidden ${
+  closing ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+}`}>
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] shrink-0">
           <h2 className="text-base font-semibold text-[var(--text-primary)]">Kart Detayı</h2>

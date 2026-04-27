@@ -8,7 +8,6 @@ export default async function LandingPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Giriş yapmış kullanıcıyı dashboard'a yönlendir
   if (user) redirect('/dashboard')
 
   return (
@@ -37,7 +36,10 @@ export default async function LandingPage() {
       <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-[var(--bg-surface)] border border-[var(--border)] rounded-full px-4 py-1.5 text-xs font-medium text-[var(--text-secondary)] mb-8">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+          </span>
           Ücretsiz kullanmaya başla
         </div>
 
@@ -56,17 +58,17 @@ export default async function LandingPage() {
         {/* CTA Butonları */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto px-4 sm:px-0">
           <Link
-  href="/register"
-  className="w-full sm:w-auto bg-[var(--accent)] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-lg shadow-[var(--accent)]/20 text-center"
->
-  Hemen Başla →
-</Link>
-<Link
-  href="/login"
-  className="w-full sm:w-auto bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] px-8 py-3 rounded-xl text-sm font-semibold hover:shadow-md transition-all text-center"
->
-  Giriş Yap
-</Link>
+            href="/register"
+            className="w-full sm:w-auto bg-[var(--accent)] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-lg shadow-[var(--accent)]/20 text-center"
+          >
+            Hemen Başla →
+          </Link>
+          <Link
+            href="/login"
+            className="w-full sm:w-auto bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-primary)] px-8 py-3 rounded-xl text-sm font-semibold hover:shadow-md transition-all text-center"
+          >
+            Giriş Yap
+          </Link>
         </div>
 
         {/* Özellikler */}
