@@ -30,17 +30,34 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     })
   }
 
+  // ─── Sütun Drag ──────────────────────────────────────────────────
+
+  const handleColumnDragStart = (event: DragStartEvent) => {
+    const col = columns.find(c => c.id === event.active.id)
+    if (col) setActiveColumn(col)
+  }
+
+  const handleColumnDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveColumn(null)
+    if (!over || active.id === over.id) return
+
+    const oldIndex = columns.findIndex(c => c.id === active.id)
+    const newIndex = columns.findIndex(c => c.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    const newColumns = arrayMove(columns, oldIndex, newIndex)
+    setColumns(newColumns)
+
+    await Promise.all(newColumns.map((col, index) =>
+      supabase.from('columns').update({ position: (index + 1) * 1000 }).eq('id', col.id)
+    ))
+  }
+
+  // ─── Kart Drag ───────────────────────────────────────────────────
+
   const handleDragStart = (event: DragStartEvent) => {
     const activeId = event.active.id as string
-
-    // Sütun mu?
-    const col = columns.find(c => c.id === activeId)
-    if (col) {
-      setActiveColumn(col)
-      return
-    }
-
-    // Kart mı?
     const card = columns.flatMap(c => c.cards).find(c => c.id === activeId)
     if (card) {
       setActiveCard(card)
@@ -57,10 +74,6 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     const overId = over.id as string
 
     if (activeId === overId) return
-
-    // Sütun sürükleniyorsa işlem yapma
-    const isActiveColumn = columns.some(c => c.id === activeId)
-    if (isActiveColumn) return
 
     const sourceCol = columns.find(c => c.cards.some(card => card.id === activeId))
     const targetCol = columns.find(c => c.id === overId || c.cards.some(card => card.id === overId))
@@ -100,29 +113,10 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     const draggedCard = activeCard
     const originalSourceColId = sourceColumnIdRef.current
     setActiveCard(null)
-    setActiveColumn(null)
     sourceColumnIdRef.current = null
     if (!over) return
 
     const activeId = active.id as string
-
-    // Sütun sıralama
-    const isColumn = columns.some(c => c.id === activeId)
-    if (isColumn) {
-      const oldIndex = columns.findIndex(c => c.id === activeId)
-      const newIndex = columns.findIndex(c => c.id === over.id)
-      if (oldIndex === newIndex) return
-
-      const newColumns = arrayMove(columns, oldIndex, newIndex)
-      setColumns(newColumns)
-
-      await Promise.all(newColumns.map((col, index) =>
-        supabase.from('columns').update({ position: (index + 1) * 1000 }).eq('id', col.id)
-      ))
-      return
-    }
-
-    // Kart sıralama
     const targetCol = columns.find(c => c.cards.some(card => card.id === activeId))
     if (!targetCol) return
 
@@ -152,6 +146,8 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     }
   }
 
+  // ─── Sütun İşlemleri ─────────────────────────────────────────────
+
   const addColumn = async (title: string): Promise<boolean> => {
     if (!title.trim()) return false
     const position = getNextPosition(columns)
@@ -175,6 +171,8 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     setColumns(prev => prev.map(col => col.id === columnId ? { ...col, title: title.trim() } : col))
     showToast('Sütun başlığı güncellendi.', 'success')
   }
+
+  // ─── Kart İşlemleri ──────────────────────────────────────────────
 
   const addCard = async (columnId: string, title: string): Promise<boolean> => {
     if (!title.trim()) return false
@@ -222,6 +220,8 @@ export function useBoard(initialColumns: ColumnWithCards[], boardId: string) {
     columns,
     activeCard,
     activeColumn,
+    handleColumnDragStart,
+    handleColumnDragEnd,
     handleDragStart,
     handleDragOver,
     handleDragEnd,

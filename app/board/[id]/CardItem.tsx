@@ -130,18 +130,7 @@ export default function CardItem({ card, columnId, onDelete, onUpdate, onToggleC
             {card.title}
           </p>
         </div>
-              <div className="flex items-center justify-between mt-1">
-  <PriorityBadge priority={card.priority} size="sm" />
-  {card.due_date && (
-    <span className={`text-xs ${
-      new Date(card.due_date) < new Date() && !card.completed
-        ? 'text-red-500 font-medium'
-        : 'text-[var(--text-muted)]'
-    }`}>
-      📅 {new Date(card.due_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
-    </span>
-  )}
-</div>
+             
         {/* Tamamlayan kişi */}
         {card.completed && card.completed_by && (
           <div className="mt-1.5 ml-6 flex items-center gap-1">

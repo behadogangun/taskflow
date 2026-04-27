@@ -14,9 +14,10 @@ import {
   useSensor,
   useSensors,
   closestCorners,
+  closestCenter,
 } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
-import ColumnComponent from './Column'
+import SortableColumn from './SortableColumn'
 import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts'
 import Logo from '@/components/ui/Logo'
 import ActivityLog from '@/components/board/ActivityLog'
@@ -41,6 +42,8 @@ export default function BoardClient({ board, initialColumns }: Props) {
     columns,
     activeCard,
     activeColumn,
+    handleColumnDragStart,
+    handleColumnDragEnd,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
@@ -66,9 +69,9 @@ export default function BoardClient({ board, initialColumns }: Props) {
   }, [router])
 
   const sensors = useSensors(
-  useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 10 } })
-)
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 10 } })
+  )
 
   const filteredColumns = columns.map(col => ({
     ...col,
@@ -145,60 +148,46 @@ export default function BoardClient({ board, initialColumns }: Props) {
 
       {/* Header */}
       <header className="bg-[var(--bg-surface)] border-b border-[var(--border)] px-4 py-3 flex items-center justify-between gap-2">
-  <div className="flex items-center gap-2 min-w-0">
-    <button
-      onClick={() => router.push('/dashboard')}
-      aria-label="Dashboard'a dön"
-      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0 text-sm"
-    >
-      ←
-    </button>
-    <div className="w-px h-5 bg-[var(--border)] shrink-0" />
-    {editingBoardTitle ? (
-      <input
-        autoFocus
-        type="text"
-        value={boardTitle}
-        onChange={(e) => setBoardTitle(e.target.value)}
-        onBlur={handleBoardTitleSave}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') handleBoardTitleSave()
-          if (e.key === 'Escape') { setBoardTitle(board.title); setEditingBoardTitle(false) }
-        }}
-        className="bg-[var(--bg-primary)] border border-[var(--accent)] rounded px-2 py-0.5 text-sm font-semibold text-[var(--text-primary)] focus:outline-none w-32"
-      />
-    ) : (
-      <button
-        onClick={() => setEditingBoardTitle(true)}
-        className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors truncate max-w-[120px] sm:max-w-none"
-        title={boardTitle}
-      >
-        {boardTitle}
-      </button>
-    )}
-  </div>
-  <div className="flex items-center gap-2 shrink-0">
-    <button
-      onClick={() => setShowActivity(prev => !prev)}
-      className={`px-2 py-1.5 rounded-lg text-xs font-medium border transition-all hidden sm:block ${
-        showActivity ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
-      }`}
-    >
-      📋 Aktiviteler
-    </button>
-    <button
-      onClick={() => setShowActivity(prev => !prev)}
-      className={`p-1.5 rounded-lg text-sm border transition-all sm:hidden ${
-        showActivity ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)]'
-      }`}
-    >
-      📋
-    </button>
-    <KeyboardShortcuts />
-    <ThemeToggle />
-    <Logo size="sm" />
-  </div>
-</header>
+        <div className="flex items-center gap-2 min-w-0">
+          <button onClick={() => router.push('/dashboard')} aria-label="Dashboard'a dön" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0 text-sm">←</button>
+          <div className="w-px h-5 bg-[var(--border)] shrink-0" />
+          {editingBoardTitle ? (
+            <input
+              autoFocus
+              type="text"
+              value={boardTitle}
+              onChange={(e) => setBoardTitle(e.target.value)}
+              onBlur={handleBoardTitleSave}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleBoardTitleSave()
+                if (e.key === 'Escape') { setBoardTitle(board.title); setEditingBoardTitle(false) }
+              }}
+              className="bg-[var(--bg-primary)] border border-[var(--accent)] rounded px-2 py-0.5 text-sm font-semibold text-[var(--text-primary)] focus:outline-none w-32"
+            />
+          ) : (
+            <button onClick={() => setEditingBoardTitle(true)} className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors truncate max-w-[120px] sm:max-w-none" title={boardTitle}>
+              {boardTitle}
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setShowActivity(prev => !prev)}
+            className={`px-2 py-1.5 rounded-lg text-xs font-medium border transition-all hidden sm:block ${showActivity ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'}`}
+          >
+            📋 Aktiviteler
+          </button>
+          <button
+            onClick={() => setShowActivity(prev => !prev)}
+            className={`p-1.5 rounded-lg text-sm border transition-all sm:hidden ${showActivity ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
+          >
+            📋
+          </button>
+          <KeyboardShortcuts />
+          <ThemeToggle />
+          <Logo size="sm" />
+        </div>
+      </header>
 
       {/* Arama & Filtre Toolbar */}
       <div className="px-6 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] flex items-center gap-3 flex-wrap">
@@ -206,48 +195,26 @@ export default function BoardClient({ board, initialColumns }: Props) {
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Kart ara..."
-            className="w-full border border-[var(--border)] rounded-lg pl-9 pr-4 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-          />
+          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Kart ara..." className="w-full border border-[var(--border)] rounded-lg pl-9 pr-4 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]" />
         </div>
-
         <div className="flex items-center gap-1.5">
           {(['all', 'low', 'medium', 'high'] as const).map(p => (
-            <button
-              key={p}
-              onClick={() => setFilterPriority(p)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                filterPriority === p ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
-              }`}
-            >
+            <button key={p} onClick={() => setFilterPriority(p)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${filterPriority === p ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'}`}>
               {p === 'all' ? 'Tümü' : p === 'low' ? '🟢 Düşük' : p === 'medium' ? '🟡 Orta' : '🔴 Yüksek'}
             </button>
           ))}
         </div>
-
         <div className="relative group/tooltip">
-          <button
-            onClick={() => setSortByDate(prev => !prev)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-              sortByDate ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
-            }`}
-          >
+          <button onClick={() => setSortByDate(prev => !prev)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${sortByDate ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'}`}>
             📅 Tarihe Göre Sırala
           </button>
           <div className="absolute top-full right-0 mt-2 w-56 bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl shadow-xl p-3 z-50 opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-200 pointer-events-none">
             <p className="text-xs font-semibold text-[var(--text-primary)] mb-1.5">📅 Tarihe Göre Sırala</p>
-            <p className="text-xs text-[var(--text-muted)] leading-relaxed">Her sütundaki kartları son teslim tarihine göre sıralar. En yakın tarihli kart en üstte görünür.</p>
+            <p className="text-xs text-[var(--text-muted)] leading-relaxed">Her sütundaki kartları son teslim tarihine göre sıralar.</p>
           </div>
         </div>
-
         {(searchQuery || filterPriority !== 'all' || sortByDate) && (
-          <button onClick={() => { setSearchQuery(''); setFilterPriority('all'); setSortByDate(false) }} className="text-xs text-red-500 hover:text-red-600 transition-colors">
-            ✕ Temizle
-          </button>
+          <button onClick={() => { setSearchQuery(''); setFilterPriority('all'); setSortByDate(false) }} className="text-xs text-red-500 hover:text-red-600 transition-colors">✕ Temizle</button>
         )}
       </div>
 
@@ -287,87 +254,93 @@ export default function BoardClient({ board, initialColumns }: Props) {
       )}
 
       {/* Kanban Tahtası */}
-      <div className="p-6">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="flex gap-4 items-start overflow-x-auto pb-4 snap-x snap-mandatory">
-            <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
-              {filteredColumns.map(column => (
-                <ColumnComponent
-                  key={column.id}
-                  column={column}
-                  onAddCard={addCard}
-                  onDeleteColumn={deleteColumn}
-                  onDeleteCard={deleteCard}
-                  onUpdateCard={updateCard}
-                  onUpdateColumnTitle={updateColumnTitle}
-                  onToggleComplete={toggleComplete}
-                />
-              ))}
-            </SortableContext>
+<div className="p-6 overflow-x-auto">
+  <DndContext
+    sensors={sensors}
+    collisionDetection={closestCorners}
+    onDragStart={(e) => { handleColumnDragStart(e); handleDragStart(e) }}
+    onDragOver={handleDragOver}
+    onDragEnd={(e) => { handleColumnDragEnd(e); handleDragEnd(e) }}
+  >
+    <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
+      <div className="flex gap-4 items-start pb-4">
+        {filteredColumns.map(column => (
+          <SortableColumn
+            key={column.id}
+            column={column}
+            onAddCard={addCard}
+            onDeleteColumn={deleteColumn}
+            onDeleteCard={deleteCard}
+            onUpdateCard={updateCard}
+            onUpdateColumnTitle={updateColumnTitle}
+            onToggleComplete={toggleComplete}
+            cardSensors={sensors}
+            onCardDragStart={handleDragStart}
+            onCardDragOver={handleDragOver}
+            onCardDragEnd={handleDragEnd}
+            activeCard={activeCard}
+          />
+        ))}
 
-            <div className="w-72 shrink-0">
-              {addingColumn ? (
-                <div className="bg-[var(--bg-surface)] rounded-xl p-3 shadow-sm">
-                  <input
-                    autoFocus
-                    type="text"
-                    value={newColumnTitle}
-                    onChange={(e) => setNewColumnTitle(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleAddColumn()
-                      if (e.key === 'Escape') setAddingColumn(false)
-                    }}
-                    placeholder="Sütun adı..."
-                    className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
-                  />
-                  <div className="flex gap-2">
-                    <button onClick={handleAddColumn} disabled={!newColumnTitle.trim()} className="bg-[var(--accent)] text-white px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50">Ekle</button>
-                    <button onClick={() => setAddingColumn(false)} className="text-[var(--text-secondary)] px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--border)] transition-colors">İptal</button>
-                  </div>
-                </div>
-              ) : (
-                <button onClick={() => setAddingColumn(true)} className="w-full bg-[var(--bg-surface)]/60 hover:bg-[var(--bg-surface)] rounded-xl p-3 text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm font-medium transition-all border-2 border-dashed border-[var(--border)] hover:border-[var(--text-muted)]">
-                  {/* Sütun yoksa empty state */}
-{columns.length === 0 && (
-  <div className="flex flex-col items-center justify-center py-24 gap-4 w-full">
-    <div className="text-6xl">📋</div>
-    <div className="text-center">
-      <p className="text-lg font-semibold text-[var(--text-primary)]">Board boş!</p>
-      <p className="text-sm text-[var(--text-muted)] mt-1">İlk sütununu ekleyerek başla</p>
-    </div>
-    <div className="flex items-center gap-2 text-[var(--accent)]">
-      <span className="text-sm font-medium">Buradan ekle</span>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </div>
-  </div>
-)}
-                  + Sütun Ekle
-                </button>
-              )}
+        <div className="w-72 shrink-0">
+          {addingColumn ? (
+            <div className="bg-[var(--bg-surface)] rounded-xl p-3 shadow-sm">
+              <input
+                autoFocus
+                type="text"
+                value={newColumnTitle}
+                onChange={(e) => setNewColumnTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAddColumn()
+                  if (e.key === 'Escape') setAddingColumn(false)
+                }}
+                placeholder="Sütun adı..."
+                className="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-[var(--bg-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
+              />
+              <div className="flex gap-2">
+                <button onClick={handleAddColumn} disabled={!newColumnTitle.trim()} className="bg-[var(--accent)] text-white px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50">Ekle</button>
+                <button onClick={() => setAddingColumn(false)} className="text-[var(--text-secondary)] px-3 py-1.5 rounded-lg text-sm hover:bg-[var(--border)] transition-colors">İptal</button>
+              </div>
             </div>
-          </div>
-
-          <DragOverlay>
-            {activeCard ? (
-              <div className="bg-[var(--bg-card)] border border-[var(--accent)] rounded-lg p-3 shadow-xl w-72 rotate-2 opacity-90">
-                <p className="text-sm font-medium text-[var(--text-primary)]">{activeCard.title}</p>
-              </div>
-            ) : activeColumn ? (
-              <div className="w-72 bg-[var(--bg-surface)] rounded-xl p-3 shadow-xl opacity-90 border border-[var(--accent)]">
-                <p className="text-sm font-semibold text-[var(--text-primary)]">{activeColumn.title}</p>
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+          ) : (
+            <button onClick={() => setAddingColumn(true)} className="w-full bg-[var(--bg-surface)]/60 hover:bg-[var(--bg-surface)] rounded-xl p-3 text-[var(--text-muted)] hover:text-[var(--text-secondary)] text-sm font-medium transition-all border-2 border-dashed border-[var(--border)] hover:border-[var(--text-muted)]">
+              + Sütun Ekle
+            </button>
+          )}
+        </div>
       </div>
+    </SortableContext>
+
+    <DragOverlay>
+      {activeCard ? (
+        <div className="bg-[var(--bg-card)] border border-[var(--accent)] rounded-lg p-3 shadow-xl w-72 rotate-2 opacity-90">
+          <p className="text-sm font-medium text-[var(--text-primary)]">{activeCard.title}</p>
+        </div>
+      ) : activeColumn ? (
+        <div className="w-72 bg-[var(--bg-surface)] rounded-xl p-3 shadow-xl opacity-90 border border-[var(--accent)]">
+          <p className="text-sm font-semibold text-[var(--text-primary)]">{activeColumn.title}</p>
+        </div>
+      ) : null}
+    </DragOverlay>
+  </DndContext>
+</div>
+
+      {/* Board boşsa empty state */}
+      {columns.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <div className="text-6xl">📋</div>
+          <div className="text-center">
+            <p className="text-lg font-semibold text-[var(--text-primary)]">Board boş!</p>
+            <p className="text-sm text-[var(--text-muted)] mt-1">İlk sütununu ekleyerek başla</p>
+          </div>
+          <div className="flex items-center gap-2 text-[var(--accent)]">
+            <span className="text-sm font-medium">Yukarıdan ekle</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="-rotate-90">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
