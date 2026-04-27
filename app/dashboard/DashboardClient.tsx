@@ -229,10 +229,10 @@ function BoardCard({ board, onOpen, onDelete, isOwner }: BoardCardProps) {
 />
         <div className="p-5 flex flex-col flex-1 justify-between">
           <div className="flex items-start justify-between">
-            <button onClick={onOpen} className="flex-1 text-left">
-              <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">
-                {board.title}
-              </h3>
+            <button onClick={onOpen} className="flex-1 text-left min-w-0">
+              <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
+  {board.title}
+</h3>
               <p className="text-xs text-[var(--text-muted)] mt-1">{formatDate(board.created_at)}</p>
             </button>
             {isOwner && (
